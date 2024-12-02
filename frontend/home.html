@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trippin' - Home</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="assets/js/scripts.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <header class="section">
+            <h1>Welcome, Employee</h1>
+            <nav>
+                <a href="history.html" class="button">View Trip History</a>
+            </nav>
+        </header>
+
+        <h2 class="section-title">Upcoming Trips</h2>
+        <section class="section" id="upcomingTripsSection">
+            <div id="tripContainer">
+                <p id="noTripsMessage">You currently have no upcoming trips.</p>
+            </div>
+            <button id="addTripButton" class="button">Add Trip</button>
+        </section>
+
+        <!-- Add Trip Modal -->
+        <div id="addTripModal" class="modal hidden" style="display: none;">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <h2>Add Trip</h2>
+                <form id="addTripForm">
+                    <label for="destination">Destination:</label>
+                    <input type="text" id="destination" name="destination" required>
+                    <label for="startDate">Start Date:</label>
+                    <input type="date" id="startDate" name="startDate" required>
+                    <label for="endDate">End Date:</label>
+                    <input type="date" id="endDate" name="endDate" required>
+                    <div class="form-buttons">
+                        <button type="submit" class="button">Save</button>
+                        <button type="button" id="closeAddTripModal" class="button">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            fetch('../backend/fetch_trips.php')
+                .then(response => response.json())
+                .then(data => {
+                    const tripContainer = document.querySelector('.trip-container');
+                    tripContainer.innerHTML = ''; // Clear existing content if necessary
+                    data.forEach(trip => {
+                        const tripElement = document.createElement('div');
+                        tripElement.className = 'trip-card';
+                        tripElement.innerHTML = `
+                            <h3>${trip.name}</h3>
+                            <p>${trip.description}</p>
+                            <button onclick="manageTrip(${trip.id})">Manage Trip</button>
+                        `;
+                        tripContainer.appendChild(tripElement);
+                    });
+                })
+                .catch(error => console.error('Error fetching trips:', error));
+        };
+
+        function manageTrip(tripId) {
+            window.location.href = `manage_trip.html?trip_id=${tripId}`;
+        }
+    </script>
+    </body>
+    
+</html>

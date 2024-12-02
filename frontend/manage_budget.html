@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trippin' - Manage Budgets</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <script>
+        function loadDestinations() {
+            fetch('../backend/fetch_destinations.php')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.querySelector('#budgetsTable tbody');
+                    tableBody.innerHTML = ''; // Clear existing rows
+                    if (data.length === 0) {
+                        document.getElementById('noBudgetsMessage').style.display = 'block';
+                    } else {
+                        document.getElementById('noBudgetsMessage').style.display = 'none';
+                        data.forEach(destination => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${destination.country}</td>
+                                <td>${destination.daily_budget}</td>
+                                <td>${destination.last_update_time}</td>
+                                <td>${destination.fname} ${destination.lname}</td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    }
+                })
+                .catch(error => console.error('Error fetching destinations:', error));
+        }
+
+        window.onload = function() {
+            loadDestinations();
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header class="section">
+            <h1>Manage Budgets</h1>
+        </header>
+
+        <section class="section" id="setBudgetSection">
+            <h2 class="section-title">Set and Update Budgets</h2>
+            <form id="setBudgetForm">
+                <label for="destination">Destination:</label>
+                <input type="text" id="destination" name="destination" required>
+                <label for="budgetAmount">Budget Amount:</label>
+                <input type="number" id="budgetAmount" name="budgetAmount" required>
+                <div class="form-buttons">
+                    <button type="submit" class="button">Save</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="section" id="currentBudgetsSection">
+            <h2 class="section-title">Current Budgets</h2>
+            <table class="table" id="budgetsTable">
+                <thead>
+                    <tr>
+                        <th>Country</th>
+                        <th>Daily Budget</th>
+                        <th>Last Update Time</th>
+                        <th>Last Updated By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <p id="noBudgetsMessage" style="display: none;">No budgets have been set yet.</p>
+        </section>
+    </div>
+</body>
+</html>

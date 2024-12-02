@@ -1,0 +1,24 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Trip</title>
+    <script>
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tripId = urlParams.get('trip_id');
+
+            fetch(`backend/fetch_trip_details.php?trip_id=${tripId}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('tripName').textContent = data.name;
+                    document.getElementById('tripDetails').textContent = JSON.stringify(data);
+                });
+        };
+    </script>
+</head>
+<body>
+    <h1 id="tripName"></h1>
+    <p id="tripDetails"></p>
+</body>
+</html>
