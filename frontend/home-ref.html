@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trippin' - Home</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <script>
+        window.onload = function () {
+            fetch('../backend/session_manager.php')
+                .then(response => {
+                    console.log("Response status:", response.status); // Debug: Log the response status
+                    if (!response.ok) {
+                        // If the session is invalid, redirect to login page
+                        throw new Error("Session invalid. Redirecting to login...");
+                    }
+                    return response.json(); // Parse JSON only if the response is OK
+                })
+                .then(data => {
+                    console.log("Session data received:", data); // Debug: Log the parsed JSON data
+
+                    // Validate the session data structure
+                    if (data.user_id && data.username) {
+                        document.getElementById('welcomeMessage').textContent = 
+                            `Welcome, ${data.username} (User ID: ${data.user_id})`;
+                    } else {
+                        console.error("Invalid session data structure. Redirecting to login...");
+                        window.location.href = 'index.html';
+                    }
+                })
+                .catch(error => {
+                    console.error("Error during session validation:", error.message);
+                    // Redirect to login page if session validation fails
+                    window.location.href = 'index.html';
+                });
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header class="section">
+            <h1 id="welcomeMessage">Welcome, User</h1>
+        </header>
+
+        <section>
+            <h2>Home Page</h2>
+            <p>This is your homepage after successful login.</p>
+        </section>
+    </div>
+</body>
+</html>

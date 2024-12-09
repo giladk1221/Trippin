@@ -1,35 +1,53 @@
-
 <?php
-include 'db_connection.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Start a session
+session_start();
+
+// Include the database connection
+include 'db.php';
+
+// Check if the request method is POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Retrieve posted data
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    // Verify user credentials
-    $stmt = $conn->prepare("SELECT id, fname, lname, manager FROM user WHERE username = ? AND password = ?");
+    // Validate inputs
+    if (empty($username) || empty($password)) {
+        echo json_encode(["status" => "error", "message" => "Username and password are required."]);
+        exit();
+    }
+
+    // Prepare the SQL statement to prevent SQL injection
+    $sql = "SELECT id, username FROM user WHERE username = ? AND password = ?";
+    $stmt = $conn->prepare($sql);
     $stmt->bind_param("ss", $username, $password);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
+        // User exists, fetch their data
         $user = $result->fetch_assoc();
-        session_start();
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['fname'] = $user['fname'];
-        $_SESSION['lname'] = $user['lname'];
-        $_SESSION['manager'] = $user['manager'];
 
-        // Redirect to the home page based on user role
-        if ($user['manager'] == 1) {
-            echo json_encode(['status' => 'success', 'redirect' => 'manager_home.html']);
-        } else {
-            echo json_encode(['status' => 'success', 'redirect' => 'home.html']);
-        }
+        // Save user data in the session
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['username'] = $user['username'];
+
+        // Redirect the user to home.html
+        header("Location: ../frontend/home.html");
+        exit();
     } else {
-        echo json_encode(['status' => 'error', 'message' => 'Invalid credentials']);
+        // Invalid login
+        echo json_encode(["status" => "error", "message" => "Invalid username or password."]);
+        exit();
     }
-    $stmt->close();
+} else {
+    // Invalid request method
+    echo json_encode(["status" => "error", "message" => "Invalid request method."]);
+    exit();
 }
-$conn->close();
 ?>

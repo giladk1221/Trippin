@@ -46,8 +46,7 @@
                 })
                 .then(trips => {
                     console.log("User trips:", trips); // Debug: Log fetched trips
-                    const tripsContainer = document.getElementById('tripContainer');
-                    tripsContainer.innerHTML = ''; // Clear existing content
+                    const tripsContainer = document.getElementById('tripsContainer');
                     if (trips.length > 0) {
                         tripsContainer.innerHTML = trips.map(trip => `
                             <div class="trip">
@@ -56,15 +55,10 @@
                             </div>
                         `).join('');
                     } else {
-                        document.getElementById('noTripsMessage').textContent = 'No upcoming trips available.';
+                        tripsContainer.innerHTML = '<p>No trips available.</p>';
                     }
                 })
                 .catch(error => console.error("Error loading trips:", error.message));
-        }
-
-        // Handle managing trips
-        function manageTrip(tripId) {
-            window.location.href = `manage_trip.html?trip_id=${tripId}`;
         }
     </script>
 </head>
@@ -72,38 +66,14 @@
     <div class="container">
         <header class="section">
             <h1 id="welcomeMessage">Welcome, User</h1>
-            <nav>
-                <a href="history.html" class="button">View Trip History</a>
-            </nav>
         </header>
 
-        <h2 class="section-title">Upcoming Trips</h2>
-        <section class="section" id="upcomingTripsSection">
-            <div id="tripContainer">
-                <p id="noTripsMessage">Loading your trips...</p>
+        <section>
+            <h2>Your Trips</h2>
+            <div id="tripsContainer">
+                <p>Loading your trips...</p>
             </div>
-            <button id="addTripButton" class="button">Add Trip</button>
         </section>
-
-        <!-- Add Trip Modal -->
-        <div id="addTripModal" class="modal hidden" style="display: none;">
-            <div class="modal-overlay"></div>
-            <div class="modal-content">
-                <h2>Add Trip</h2>
-                <form id="addTripForm">
-                    <label for="destination">Destination:</label>
-                    <input type="text" id="destination" name="destination" required>
-                    <label for="startDate">Start Date:</label>
-                    <input type="date" id="startDate" name="startDate" required>
-                    <label for="endDate">End Date:</label>
-                    <input type="date" id="endDate" name="endDate" required>
-                    <div class="form-buttons">
-                        <button type="submit" class="button">Save</button>
-                        <button type="button" id="closeAddTripModal" class="button">Cancel</button>
-                    </div>
-                </form>
-            </div>
-        </div>
     </div>
 </body>
 </html>
