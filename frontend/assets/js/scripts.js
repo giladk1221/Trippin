@@ -1,25 +1,26 @@
-
-document.getElementById('loginForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    fetch('backend/login.php', {
-        method: 'POST',
-        body: formData,
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                window.location.href = data.redirect;
-            } else {
-                alert(data.message || 'Login failed');
-            }
-        })
-        .catch(error => console.error('Error during login:', error));
-});
-
-
-
 document.addEventListener('DOMContentLoaded', () => {
+    // Add event listener to login form, if it exists
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            fetch('backend/login.php', {
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        window.location.href = data.redirect;
+                    } else {
+                        alert(data.message || 'Login failed');
+                    }
+                })
+                .catch(error => console.error('Error during login:', error));
+        });
+    }
+
     // Initialize modal functionality
     const initializeModal = (triggerId, modalId, closeId) => {
         const trigger = document.getElementById(triggerId);
@@ -50,9 +51,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Initialize all modals
+    // Initialize Add Trip modal
     initializeModal('addTripButton', 'addTripModal', 'closeAddTripModal');
-    initializeModal('addFlightButton', 'addFlightModal', 'closeAddFlightModal');
-    initializeModal('addExpenseButton', 'addExpenseModal', 'closeAddExpenseModal');
-    initializeModal('manageBudgetButton', 'manageBudgetModal', 'closeManageBudgetModal');
+
+    // Add event listener to Add Trip form
+    const addTripForm = document.getElementById('addTripForm');
+    if (addTripForm) {
+        addTripForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+    
+            const formData = new FormData(addTripForm);
+            for (const pair of formData.entries()) {
+                console.log(`${pair[0]}: ${pair[1]}`); // Debug: Log form data
+            }
+    
+            fetch('../backend/add_trip.php', {
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('Trip added successfully!');
+                        location.reload(); // Reload the page to fetch updated trips
+                    } else {
+                        alert(data.message || 'Failed to add trip');
+                    }
+                })
+                .catch(error => console.error('Error adding trip:', error));
+        });
+    }
 });
