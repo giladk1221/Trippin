@@ -1,24 +1,45 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Manage Trip</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trippin' - Manage Trip</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
     <script>
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const tripId = urlParams.get('trip_id');
-
-            fetch(`backend/fetch_trip_details.php?trip_id=${tripId}`)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('tripName').textContent = data.name;
-                    document.getElementById('tripDetails').textContent = JSON.stringify(data);
-                });
-        };
+        // Load trip data from sessionStorage and display in header
+        document.addEventListener('DOMContentLoaded', () => {
+            const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
+            if (tripData) {
+                document.getElementById('tripHeader').textContent = `Manage Trip: ${tripData.destination}`;
+                document.getElementById('tripDates').textContent = `${tripData.start_date} to ${tripData.end_date}`;
+            } else {
+                document.getElementById('tripHeader').textContent = 'No Trip Selected';
+            }
+        });
     </script>
 </head>
 <body>
-    <h1 id="tripName"></h1>
-    <p id="tripDetails"></p>
+    <div class="container">
+        <header class="section">
+            <h1 id="tripHeader" class="trip-header">Manage Trip</h1>
+            <p id="tripDates" class="trip-dates"></p>
+        </header>
+
+        <h2 class="section-title">Flights</h2>
+        <section class="section" id="flightsSection">
+            <div id="flightContainer">
+                <p id="noFlightsMessage">You currently have no flights.</p>
+            </div>
+            <button id="addFlightButton" class="button">Add Flight</button>
+        </section>
+
+        <h2 class="section-title">Expenses</h2>
+        <section class="section" id="expensesSection">
+            <div id="expenseContainer">
+                <p id="noExpensesMessage">You currently have no expenses.</p>
+            </div>
+            <button id="addExpenseButton" class="button">Add Expense</button>
+        </section>
+    </div>
 </body>
 </html>

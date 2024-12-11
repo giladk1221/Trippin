@@ -50,9 +50,10 @@
                     tripsContainer.innerHTML = ''; // Clear existing content
                     if (trips.length > 0) {
                         tripsContainer.innerHTML = trips.map(trip => `
-                            <div class="trip">
+                            <div class="trip-card">
                                 <h3>${trip.destination}</h3>
                                 <p>${trip.start_date} to ${trip.end_date}</p>
+                                <button onclick="viewTrip('${trip.destination}', '${trip.start_date}', '${trip.end_date}')">Manage Trip</button>
                             </div>
                         `).join('');
                     } else {
@@ -62,9 +63,11 @@
                 .catch(error => console.error("Error loading trips:", error.message));
         }
 
-        // Handle managing trips
-        function manageTrip(tripId) {
-            window.location.href = `manage_trip.html?trip_id=${tripId}`;
+        // Store trip data in sessionStorage and navigate to manage_trip.html
+        function viewTrip(destination, start_date, end_date) {
+            const tripData = { destination, start_date, end_date };
+            sessionStorage.setItem('selectedTrip', JSON.stringify(tripData));
+            window.location.href = 'manage_trip.html';
         }
     </script>
 </head>
@@ -94,9 +97,9 @@
                     <label for="destination">Destination:</label>
                     <input type="text" id="destination" name="destination" required>
                     <label for="startDate">Start Date:</label>
-                    <input type="date" id="startDate" name="start_date" required> <!-- Change 'name' to 'start_date' -->
+                    <input type="date" id="startDate" name="start_date" required>
                     <label for="endDate">End Date:</label>
-                    <input type="date" id="endDate" name="end_date" required> <!-- Change 'name' to 'end_date' -->
+                    <input type="date" id="endDate" name="end_date" required>
                     <div class="form-buttons">
                         <button type="submit" class="button">Save</button>
                         <button type="button" id="closeAddTripModal" class="button">Cancel</button>
