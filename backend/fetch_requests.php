@@ -1,6 +1,6 @@
 
 <?php
-include 'db_connection.php';
+include 'db.php';
 session_start();
 
 $manager_id = $_SESSION['user_id'];

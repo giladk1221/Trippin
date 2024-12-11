@@ -1,5 +1,5 @@
 <?php
-include 'db_connection.php';
+include 'db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $country = $_POST['country'];

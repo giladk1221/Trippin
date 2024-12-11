@@ -1,6 +1,6 @@
 
 <?php
-include 'db_connection.php';
+include 'db.php';
 
 $query = "
 SELECT destination.country, destination.daily_budget, destination.last_update_time, 
