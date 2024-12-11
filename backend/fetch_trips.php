@@ -20,8 +20,8 @@ if (!$user_id) {
     exit();
 }
 
-// Fetch trips for the user
-$sql = "SELECT destination, start_date, end_date FROM trip WHERE user_id = ?";
+// Fetch trips for the user, including id
+$sql = "SELECT id, destination, start_date, end_date FROM trip WHERE user_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -29,7 +29,7 @@ $result = $stmt->get_result();
 
 $trips = [];
 while ($row = $result->fetch_assoc()) {
-    $trips[] = $row;
+    $trips[] = $row; // Include id in each trip entry
 }
 
 echo json_encode($trips);

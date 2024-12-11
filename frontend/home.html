@@ -53,7 +53,7 @@
                             <div class="trip-card">
                                 <h3>${trip.destination}</h3>
                                 <p>${trip.start_date} to ${trip.end_date}</p>
-                                <button onclick="viewTrip('${trip.destination}', '${trip.start_date}', '${trip.end_date}')">Manage Trip</button>
+                                <button onclick="viewTrip('${trip.id}', '${trip.destination}', '${trip.start_date}', '${trip.end_date}')">Manage Trip</button>
                             </div>
                         `).join('');
                     } else {
@@ -64,8 +64,9 @@
         }
 
         // Store trip data in sessionStorage and navigate to manage_trip.html
-        function viewTrip(destination, start_date, end_date) {
-            const tripData = { destination, start_date, end_date };
+        function viewTrip(id, destination, start_date, end_date) {
+            const tripData = { id, destination, start_date, end_date };
+            console.log("Storing trip data:", tripData); // Debug: Log trip data
             sessionStorage.setItem('selectedTrip', JSON.stringify(tripData));
             window.location.href = 'manage_trip.html';
         }

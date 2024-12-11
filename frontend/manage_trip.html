@@ -12,6 +12,7 @@
             if (tripData) {
                 document.getElementById('tripHeader').textContent = `Manage Trip: ${tripData.destination}`;
                 document.getElementById('tripDates').textContent = `${tripData.start_date} to ${tripData.end_date}`;
+                console.log("Managing trip with ID:", tripData.id); // Correctly log trip ID
             } else {
                 document.getElementById('tripHeader').textContent = 'No Trip Selected';
             }
