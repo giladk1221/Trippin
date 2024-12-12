@@ -13,10 +13,47 @@
                 document.getElementById('tripHeader').textContent = `Manage Trip: ${tripData.destination}`;
                 document.getElementById('tripDates').textContent = `${tripData.start_date} to ${tripData.end_date}`;
                 console.log("Managing trip with ID:", tripData.id); // Correctly log trip ID
+                loadTripExpenses();
             } else {
                 document.getElementById('tripHeader').textContent = 'No Trip Selected';
             }
         });
+
+        // Fetch and display expenses for the selected trip
+        function loadTripExpenses() {
+            const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
+            if (!tripData || !tripData.id) {
+                console.error("Trip data or trip ID is missing.");
+                return;
+            }
+
+            fetch(`../backend/fetch_expenses.php?trip_id=${tripData.id}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch expenses.");
+                    }
+                    return response.json();
+                })
+                .then(expenses => {
+                    const expenseContainer = document.getElementById('expenseContainer');
+                    expenseContainer.innerHTML = '';
+                    if (expenses.length > 0) {
+                        expenses.forEach(expense => {
+                            const expenseCard = `
+                                <div class="expense-card">
+                                    <p>Reason: ${expense.reason}</p>
+                                    <p>Amount: ${expense.amount} ${expense.currency}</p>
+                                    <p>Date: ${expense.date}</p>
+                                </div>
+                            `;
+                            expenseContainer.innerHTML += expenseCard;
+                        });
+                    } else {
+                        expenseContainer.innerHTML = '<p>No expenses recorded for this trip.</p>';
+                    }
+                })
+                .catch(error => console.error("Error loading expenses:", error.message));
+        }
     </script>
 </head>
 <body>
@@ -26,18 +63,18 @@
             <p id="tripDates" class="trip-dates"></p>
         </header>
 
+        <!-- Flights Section -->
         <h2 class="section-title">Flights</h2>
         <section class="section" id="flightsSection">
-            <div id="flightContainer">
-                <p id="noFlightsMessage">You currently have no flights.</p>
-            </div>
-            <button id="addFlightButton" class="button">Add Flight</button>
+            <p>You currently have no flights.</p>
+            <button id="addFlightButton" class="button" disabled>Add Flight</button>
         </section>
 
+        <!-- Expenses Section -->
         <h2 class="section-title">Expenses</h2>
         <section class="section" id="expensesSection">
             <div id="expenseContainer">
-                <p id="noExpensesMessage">You currently have no expenses.</p>
+                <p id="noExpensesMessage">Loading expenses...</p>
             </div>
             <button id="addExpenseButton" class="button">Add Expense</button>
         </section>
@@ -47,7 +84,7 @@
             <div class="modal-overlay"></div>
             <div class="modal-content">
                 <h2>Add Expense</h2>
-                <form id="addExpenseForm">
+                <form id="addExpenseForm" enctype="multipart/form-data">
                     <label for="reason">Reason:</label>
                     <input type="text" id="reason" name="reason" required>
 
@@ -59,11 +96,11 @@
 
                     <label for="currency">Currency:</label>
                     <select id="currency" name="currency" required>
-                        <option value="" disabled selected>Loading currencies...</option>
+                        <option value="" disabled selected>Select Currency</option>
                     </select>
 
-                    <label for="receipt">Upload Receipt:</label>
-                    <input type="file" id="receipt" name="receipt">
+                    <label for="receipt">Upload Receipt (required):</label>
+                    <input type="file" id="receipt" name="receipt" required>
 
                     <div class="form-buttons">
                         <button type="submit" class="button">Save</button>

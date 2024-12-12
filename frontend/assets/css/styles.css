@@ -170,3 +170,19 @@ h2 {
     margin-top: 0;
     margin-bottom: 20px;
 }
+
+
+.expense-card {
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.expense-card p {
+    margin: 10px 0;
+    color: #666;
+}

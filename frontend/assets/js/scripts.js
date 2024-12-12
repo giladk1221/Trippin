@@ -54,20 +54,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Initialize Add Trip modal
+    // Add Trip functionality
     initializeModal('addTripButton', 'addTripModal', 'closeAddTripModal');
 
-    // Add event listener to Add Trip form
     const addTripForm = document.getElementById('addTripForm');
     if (addTripForm) {
         addTripForm.addEventListener('submit', function(event) {
             event.preventDefault();
-    
             const formData = new FormData(addTripForm);
-            for (const pair of formData.entries()) {
-                console.log(`${pair[0]}: ${pair[1]}`); // Debug: Log form data
-            }
-    
+
             fetch('../backend/add_trip.php', {
                 method: 'POST',
                 body: formData,
@@ -76,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(data => {
                     if (data.status === 'success') {
                         alert('Trip added successfully!');
-                        location.reload(); // Reload the page to fetch updated trips
+                        location.reload(); // Reload to show the new trip
                     } else {
                         alert(data.message || 'Failed to add trip');
                     }
@@ -85,15 +80,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Fetch currencies and populate dropdown
+    // Fetch currencies for dropdown
     const populateCurrencyDropdown = () => {
         const currencyDropdown = document.getElementById('currency');
         fetch('../backend/fetch_currencies.php')
             .then(response => response.json())
             .then(currencies => {
-                // Clear existing options
                 currencyDropdown.innerHTML = '<option value="" disabled selected>Select Currency</option>';
-                // Populate with fetched currencies
                 currencies.forEach(currency => {
                     const option = document.createElement('option');
                     option.value = currency;
@@ -104,19 +97,21 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => console.error('Error fetching currencies:', error));
     };
 
-    // Initialize Add Expense modal
+    // Add Expense functionality
     initializeModal('addExpenseButton', 'addExpenseModal', 'closeAddExpenseModal');
 
-    // Add event listener to Add Expense form
     const addExpenseForm = document.getElementById('addExpenseForm');
     if (addExpenseForm) {
         addExpenseForm.addEventListener('submit', function(event) {
             event.preventDefault();
+            const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
+            if (!tripData || !tripData.id) {
+                console.error("Trip data or trip ID is missing.");
+                return;
+            }
 
             const formData = new FormData(addExpenseForm);
-            for (const pair of formData.entries()) {
-                console.log(`${pair[0]}: ${pair[1]}`); // Debug: Log form data
-            }
+            formData.append('trip_id', tripData.id);
 
             fetch('../backend/add_expense.php', {
                 method: 'POST',
@@ -126,7 +121,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(data => {
                     if (data.status === 'success') {
                         alert('Expense added successfully!');
-                        location.reload(); // Reload the page to fetch updated expenses
+                        document.getElementById('closeAddExpenseModal').click(); // Close modal
+                        loadTripExpenses(); // Refresh expenses
                     } else {
                         alert(data.message || 'Failed to add expense');
                     }
@@ -134,4 +130,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 .catch(error => console.error('Error adding expense:', error));
         });
     }
+
+    // Fetch and display trip expenses
+    const loadTripExpenses = () => {
+        const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
+        if (!tripData || !tripData.id) {
+            console.error("Trip data or trip ID is missing.");
+            return;
+        }
+
+        fetch(`../backend/fetch_expenses.php?trip_id=${tripData.id}`)
+            .then(response => response.json())
+            .then(expenses => {
+                const expenseContainer = document.getElementById('expenseContainer');
+                expenseContainer.innerHTML = '';
+                if (expenses.length > 0) {
+                    expenses.forEach(expense => {
+                        const expenseCard = `
+                            <div class="expense-card">
+                                <p>Reason: ${expense.reason}</p>
+                                <p>Amount: ${expense.amount} ${expense.currency}</p>
+                                <p>Date: ${expense.date}</p>
+                            </div>
+                        `;
+                        expenseContainer.innerHTML += expenseCard;
+                    });
+                } else {
+                    expenseContainer.innerHTML = '<p>No expenses recorded for this trip.</p>';
+                }
+            })
+            .catch(error => console.error('Error loading expenses:', error));
+    };
+
+    // Load expenses when the page is ready
+    loadTripExpenses();
 });
