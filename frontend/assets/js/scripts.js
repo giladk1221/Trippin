@@ -33,6 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
             trigger.addEventListener('click', () => {
                 modal.classList.remove('hidden');
                 modal.style.display = 'flex'; // Ensure proper modal display
+                if (triggerId === 'addExpenseButton') {
+                    populateCurrencyDropdown(); // Populate dropdown for expense modal
+                }
             });
 
             // Hide modal on close button click
@@ -79,6 +82,56 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 })
                 .catch(error => console.error('Error adding trip:', error));
+        });
+    }
+
+    // Fetch currencies and populate dropdown
+    const populateCurrencyDropdown = () => {
+        const currencyDropdown = document.getElementById('currency');
+        fetch('../backend/fetch_currencies.php')
+            .then(response => response.json())
+            .then(currencies => {
+                // Clear existing options
+                currencyDropdown.innerHTML = '<option value="" disabled selected>Select Currency</option>';
+                // Populate with fetched currencies
+                currencies.forEach(currency => {
+                    const option = document.createElement('option');
+                    option.value = currency;
+                    option.textContent = currency;
+                    currencyDropdown.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching currencies:', error));
+    };
+
+    // Initialize Add Expense modal
+    initializeModal('addExpenseButton', 'addExpenseModal', 'closeAddExpenseModal');
+
+    // Add event listener to Add Expense form
+    const addExpenseForm = document.getElementById('addExpenseForm');
+    if (addExpenseForm) {
+        addExpenseForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(addExpenseForm);
+            for (const pair of formData.entries()) {
+                console.log(`${pair[0]}: ${pair[1]}`); // Debug: Log form data
+            }
+
+            fetch('../backend/add_expense.php', {
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('Expense added successfully!');
+                        location.reload(); // Reload the page to fetch updated expenses
+                    } else {
+                        alert(data.message || 'Failed to add expense');
+                    }
+                })
+                .catch(error => console.error('Error adding expense:', error));
         });
     }
 });
