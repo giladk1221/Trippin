@@ -11,7 +11,7 @@ error_reporting(E_ALL);
 function createGoogleCalendarEvent($flight) {
     // Initialize the Google Client
     $client = new Client();
-    $client->setAuthConfig('credentials.json'); // Make sure this file is correctly configured
+    $client->setAuthConfig('credentials.json'); 
     $client->addScope(Calendar::CALENDAR);
 
     $service = new Calendar($client);
@@ -39,7 +39,7 @@ function createGoogleCalendarEvent($flight) {
         ],
     ]);
 
-    $calendar_id = "giladk1221@gmail.com"; // Fixed calendar ID
+    $calendar_id = "giladk1221@gmail.com"; 
 
     try {
         $createdEvent = $service->events->insert($calendar_id, $event);

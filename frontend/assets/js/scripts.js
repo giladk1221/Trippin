@@ -38,6 +38,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (triggerId === 'addFlightButton') {
                     populateAirportsDropdown(); // Populate dropdown for flight modal
                 }
+                  else if (triggerId === 'addTripButton') {
+                populateDestinationsDropdown(); // Populate dropdown for trip modal
+            }
+                
+                
             });
 
             // Hide modal on close button click
@@ -126,6 +131,35 @@ document.addEventListener('DOMContentLoaded', () => {
             originDropdown.innerHTML = `<option value="" disabled>Error loading airports</option>`;
         }
     };
+
+
+    const populateDestinationsDropdown = async () => {
+        const destinationDropdown = document.getElementById('destination');
+        destinationDropdown.innerHTML = `<option value="" disabled selected>Loading destinations...</option>`; // Loading state
+    
+        try {
+            const response = await fetch('../backend/fetch_destinations.php'); // Call PHP script
+            const data = await response.json();
+    
+            if (data && data.length > 0) {
+                destinationDropdown.innerHTML = `<option value="" disabled selected>Select a destination</option>`;
+                data.forEach(destination => {
+                    const option = document.createElement('option');
+                    option.value = destination; // Save destination as value
+                    option.textContent = destination; // Display format
+                    destinationDropdown.appendChild(option);
+                });
+            } else {
+                destinationDropdown.innerHTML = `<option value="" disabled>No destinations available</option>`;
+            }
+        } catch (error) {
+            console.error('Error fetching destinations:', error);
+            destinationDropdown.innerHTML = `<option value="" disabled>Error loading destinations</option>`;
+        }
+    };
+
+
+
 
     // Initialize modal functionality for flights
     initializeModal('addFlightButton', 'addFlightModal', 'closeAddFlightModal');

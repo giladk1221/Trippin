@@ -1,17 +1,26 @@
-
 <?php
+session_start();
+header('Content-Type: application/json');
+
+// Check if the user is logged in
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401); // Unauthorized
+    echo json_encode(["error" => "Unauthorized"]);
+    exit();
+}
+
 include 'db.php';
 
-$query = "
-SELECT destination.country, destination.daily_budget, destination.last_update_time, 
-user.fname, user.lname 
-FROM destination 
-INNER JOIN user ON destination.last_updated_by = user.id";
-$result = $conn->query($query);
+// Query to fetch unique destinations
+$sql = "SELECT DISTINCT country FROM destination"; 
+$result = $conn->query($sql);
 
 $destinations = [];
-while ($row = $result->fetch_assoc()) {
-    $destinations[] = $row;
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $destinations[] = $row['country']; 
+    }
 }
+
 echo json_encode($destinations);
 ?>

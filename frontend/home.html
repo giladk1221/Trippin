@@ -96,7 +96,9 @@
                 <h2>Add Trip</h2>
                 <form id="addTripForm">
                     <label for="destination">Destination:</label>
-                    <input type="text" id="destination" name="destination" required>
+                    <select id="destination" name="destination" required>
+                        <option value="" disabled selected>Select a destination</option>
+                    </select>
                     <label for="startDate">Start Date:</label>
                     <input type="date" id="startDate" name="start_date" required>
                     <label for="endDate">End Date:</label>
