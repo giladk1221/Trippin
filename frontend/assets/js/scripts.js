@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add event listener to login form, if it exists
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
-        loginForm.addEventListener('submit', function(event) {
+        loginForm.addEventListener('submit', function (event) {
             event.preventDefault();
             const formData = new FormData(event.target);
             fetch('backend/login.php', {
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const addTripForm = document.getElementById('addTripForm');
     if (addTripForm) {
-        addTripForm.addEventListener('submit', function(event) {
+        addTripForm.addEventListener('submit', function (event) {
             event.preventDefault();
             const formData = new FormData(addTripForm);
 
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => console.error('Error fetching currencies:', error));
     };
 
-
+    // Populate airports dropdown with only IATA codes as values
     const populateAirportsDropdown = async () => {
         const originDropdown = document.getElementById('origin');
         originDropdown.innerHTML = `<option value="" disabled selected>Loading airports...</option>`; // Loading state
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 data.data.forEach(airport => {
                     if (airport.country_name && airport.iata_code) {
                         const option = document.createElement('option');
-                        option.value = airport.iata_code; // Save `iata_code` as value
+                        option.value = airport.iata_code; // Save only `iata_code` as value
                         option.textContent = `${airport.country_name} - ${airport.iata_code}`; // Display format
                         originDropdown.appendChild(option);
                     }
@@ -127,44 +127,96 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-
-
- // Initialize modal functionality for flights
+    // Initialize modal functionality for flights
     initializeModal('addFlightButton', 'addFlightModal', 'closeAddFlightModal');
 
+    // Add event listener to Add Flight form
     const addFlightForm = document.getElementById('addFlightForm');
     if (addFlightForm) {
-        addFlightForm.addEventListener('submit', function(event) {
+        addFlightForm.addEventListener('submit', async function (event) {
             event.preventDefault();
+
+            const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
+            if (!tripData || !tripData.id) {
+                console.error("Trip data or trip ID is missing.");
+                alert("Please select a trip before adding a flight.");
+                return;
+            }
+
             const formData = new FormData(addFlightForm);
+            formData.append('trip_id', tripData.id);
 
-            // You can add a backend POST call here in the future
-            console.log("Flight data to save:", {
-                origin: formData.get('origin'),
-                date: formData.get('date'),
-                flightNumber: formData.get('flightNumber')
-            });
+            try {
+                const response = await fetch('../backend/add_flight.php', {
+                    method: 'POST',
+                    body: formData,
+                });
 
-            alert('Flight added successfully!');
-            document.getElementById('closeAddFlightModal').click(); // Close modal
+                const result = await response.json();
 
-            // Refresh flights section (stub for now)
-            document.getElementById('flightContainer').innerHTML += `
-                <div class="flight-card">
-                    <p>Origin: ${formData.get('origin')}</p>
-                    <p>Date: ${formData.get('date')}</p>
-                    <p>Flight Number: ${formData.get('flightNumber')}</p>
-                </div>
-            `;
+                if (response.ok && result.status === 'success') {
+                    alert(result.message);
+                    loadFlights(); // Refresh flights dynamically
+                    document.getElementById('closeAddFlightModal').click(); // Close modal
+                } else {
+                    console.error(result.error || "Error adding flight");
+                    alert(result.error || "Failed to add flight. Please try again.");
+                }
+            } catch (error) {
+                console.error('Error adding flight:', error);
+                alert('An unexpected error occurred. Please try again.');
+            }
         });
-    }   
+    }
+
+    // Function to fetch and display flights for the selected trip
+    const loadFlights = async () => {
+        const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
+        if (!tripData || !tripData.id) {
+            console.error("Trip data or trip ID is missing.");
+            return;
+        }
+
+        const flightContainer = document.getElementById('flightContainer');
+        flightContainer.innerHTML = '<p>Loading flights...</p>';
+
+        try {
+            const response = await fetch(`../backend/fetch_flights.php?trip_id=${tripData.id}`);
+            const flights = await response.json();
+
+            flightContainer.innerHTML = ''; // Clear container
+            if (flights.length > 0) {
+                flights.forEach(flight => {
+                    const flightCard = `
+                        <div class="flight-card">
+                            <p><strong>Flight Number:</strong> ${flight.flight_number}</p>
+                            <p><strong>Airline:</strong> ${flight.airline}</p>
+                            <p><strong>Origin:</strong> ${flight.origin_airport} (Terminal ${flight.origin_terminal || 'N/A'})</p>
+                            <p><strong>Destination:</strong> ${flight.destination_airport} (Terminal ${flight.destination_terminal || 'N/A'})</p>
+                            <p><strong>Departure:</strong> ${flight.scheduled_departure_time}</p>
+                            <p><strong>Arrival:</strong> ${flight.scheduled_arrival}</p>
+                        </div>
+                    `;
+                    flightContainer.innerHTML += flightCard;
+                });
+            } else {
+                flightContainer.innerHTML = '<p>No flights recorded for this trip.</p>';
+            }
+        } catch (error) {
+            console.error('Error loading flights:', error);
+            flightContainer.innerHTML = '<p>Error loading flights. Please try again later.</p>';
+        }
+    };
+
+    // Load flights when the page is ready
+    loadFlights();
 
     // Add Expense functionality
     initializeModal('addExpenseButton', 'addExpenseModal', 'closeAddExpenseModal');
 
     const addExpenseForm = document.getElementById('addExpenseForm');
     if (addExpenseForm) {
-        addExpenseForm.addEventListener('submit', function(event) {
+        addExpenseForm.addEventListener('submit', function (event) {
             event.preventDefault();
             const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
             if (!tripData || !tripData.id) {

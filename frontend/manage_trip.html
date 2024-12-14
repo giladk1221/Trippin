@@ -76,17 +76,17 @@
             <div class="modal-content">
                 <h2>Add Flight</h2>
                 <form id="addFlightForm">
-                    <label for="origin">Origin:</label>
-                    <select id="origin" name="origin" required>
-                        <option value="" disabled selected>Loading airports...</option>
+                    <label for="origin">Origin (IATA Code):</label>
+                    <select id="origin" name="iata_code" required> <!-- Updated name -->
+                        <option value="" disabled selected>Select origin...</option>
                     </select>
-
+                
                     <label for="date">Date:</label>
                     <input type="date" id="flightDate" name="date" required>
-
+                
                     <label for="flightNumber">Flight Number:</label>
-                    <input type="text" id="flightNumber" name="flightNumber" required>
-
+                    <input type="text" id="flightNumber" name="flight_number" required> <!-- Updated name -->
+                
                     <div class="form-buttons">
                         <button type="submit" class="button">Save</button>
                         <button type="button" id="closeAddFlightModal" class="button">Cancel</button>
