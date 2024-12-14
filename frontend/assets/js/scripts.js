@@ -191,13 +191,27 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="flight-card">
                             <p><strong>Flight Number:</strong> ${flight.flight_number}</p>
                             <p><strong>Airline:</strong> ${flight.airline}</p>
+                            <p><strong>Date:</strong> ${flight.flight_date || 'N/A'}</p>
                             <p><strong>Origin:</strong> ${flight.origin_airport} (Terminal ${flight.origin_terminal || 'N/A'})</p>
                             <p><strong>Destination:</strong> ${flight.destination_airport} (Terminal ${flight.destination_terminal || 'N/A'})</p>
-                            <p><strong>Departure:</strong> ${flight.scheduled_departure_time}</p>
-                            <p><strong>Arrival:</strong> ${flight.scheduled_arrival}</p>
+                            <p><strong>Departure:</strong> ${flight.scheduled_departure_time || 'N/A'}</p>
+                            <p><strong>Arrival:</strong> ${flight.scheduled_arrival || 'N/A'}</p>
+                            <button class="google-calendar-button" data-flight='${JSON.stringify(flight)}'>
+                                <img src="assets/images/google-calendar-icon.png" alt="Add to Google Calendar" style="width: 20px; height: 20px;">
+                                Add to Google Calendar
+                            </button>
                         </div>
                     `;
                     flightContainer.innerHTML += flightCard;
+                });
+
+                // Add event listeners to Google Calendar buttons
+                const googleCalendarButtons = document.querySelectorAll('.google-calendar-button');
+                googleCalendarButtons.forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const flightData = JSON.parse(event.target.dataset.flight);
+                        addFlightToGoogleCalendar(flightData);
+                    });
                 });
             } else {
                 flightContainer.innerHTML = '<p>No flights recorded for this trip.</p>';
@@ -205,6 +219,31 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error loading flights:', error);
             flightContainer.innerHTML = '<p>Error loading flights. Please try again later.</p>';
+        }
+    };
+
+    // Function to handle adding a flight to Google Calendar
+    const addFlightToGoogleCalendar = (flightData) => {
+        if (confirm(`Do you want to add this flight to your Google Calendar?\n\nFlight Number: ${flightData.flight_number}\nAirline: ${flightData.airline}`)) {
+            fetch('../backend/add_to_google_calendar.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(flightData),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('Flight successfully added to Google Calendar!');
+                    } else {
+                        alert(data.error || 'Failed to add flight to Google Calendar.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error adding flight to Google Calendar:', error);
+                    alert('An unexpected error occurred. Please try again.');
+                });
         }
     };
 
