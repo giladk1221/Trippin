@@ -6,20 +6,18 @@
     <title>Trippin' - Manage Trip</title>
     <link rel="stylesheet" href="assets/css/styles.css">
     <script>
-        // Load trip data from sessionStorage and display in header
         document.addEventListener('DOMContentLoaded', () => {
             const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
             if (tripData) {
                 document.getElementById('tripHeader').textContent = `Manage Trip: ${tripData.destination}`;
                 document.getElementById('tripDates').textContent = `${tripData.start_date} to ${tripData.end_date}`;
-                console.log("Managing trip with ID:", tripData.id); // Correctly log trip ID
+                console.log("Managing trip with ID:", tripData.id); 
                 loadTripExpenses();
             } else {
                 document.getElementById('tripHeader').textContent = 'No Trip Selected';
             }
         });
 
-        // Fetch and display expenses for the selected trip
         function loadTripExpenses() {
             const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
             if (!tripData || !tripData.id) {
@@ -66,9 +64,36 @@
         <!-- Flights Section -->
         <h2 class="section-title">Flights</h2>
         <section class="section" id="flightsSection">
-            <p>You currently have no flights.</p>
-            <button id="addFlightButton" class="button" disabled>Add Flight</button>
+            <div id="flightContainer">
+                <p id="noFlightsMessage">You currently have no flights.</p>
+            </div>
+            <button id="addFlightButton" class="button">Add Flight</button>
         </section>
+
+        <!-- Add Flight Modal -->
+        <div id="addFlightModal" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <h2>Add Flight</h2>
+                <form id="addFlightForm">
+                    <label for="origin">Origin:</label>
+                    <select id="origin" name="origin" required>
+                        <option value="" disabled selected>Loading airports...</option>
+                    </select>
+
+                    <label for="date">Date:</label>
+                    <input type="date" id="flightDate" name="date" required>
+
+                    <label for="flightNumber">Flight Number:</label>
+                    <input type="text" id="flightNumber" name="flightNumber" required>
+
+                    <div class="form-buttons">
+                        <button type="submit" class="button">Save</button>
+                        <button type="button" id="closeAddFlightModal" class="button">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         <!-- Expenses Section -->
         <h2 class="section-title">Expenses</h2>

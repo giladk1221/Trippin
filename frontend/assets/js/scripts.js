@@ -35,6 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 modal.style.display = 'flex'; // Ensure proper modal display
                 if (triggerId === 'addExpenseButton') {
                     populateCurrencyDropdown(); // Populate dropdown for expense modal
+                } else if (triggerId === 'addFlightButton') {
+                    populateAirportsDropdown(); // Populate dropdown for flight modal
                 }
             });
 
@@ -96,6 +98,66 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(error => console.error('Error fetching currencies:', error));
     };
+
+
+    const populateAirportsDropdown = async () => {
+        const originDropdown = document.getElementById('origin');
+        originDropdown.innerHTML = `<option value="" disabled selected>Loading airports...</option>`; // Loading state
+
+        try {
+            const response = await fetch('../backend/fetch_airports.php'); // Call PHP script
+            const data = await response.json();
+
+            if (data && data.data) {
+                originDropdown.innerHTML = `<option value="" disabled selected>Select an airport</option>`;
+                data.data.forEach(airport => {
+                    if (airport.country_name && airport.iata_code) {
+                        const option = document.createElement('option');
+                        option.value = airport.iata_code; // Save `iata_code` as value
+                        option.textContent = `${airport.country_name} - ${airport.iata_code}`; // Display format
+                        originDropdown.appendChild(option);
+                    }
+                });
+            } else {
+                originDropdown.innerHTML = `<option value="" disabled>No airports available</option>`;
+            }
+        } catch (error) {
+            console.error('Error fetching airports:', error);
+            originDropdown.innerHTML = `<option value="" disabled>Error loading airports</option>`;
+        }
+    };
+
+
+
+ // Initialize modal functionality for flights
+    initializeModal('addFlightButton', 'addFlightModal', 'closeAddFlightModal');
+
+    const addFlightForm = document.getElementById('addFlightForm');
+    if (addFlightForm) {
+        addFlightForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(addFlightForm);
+
+            // You can add a backend POST call here in the future
+            console.log("Flight data to save:", {
+                origin: formData.get('origin'),
+                date: formData.get('date'),
+                flightNumber: formData.get('flightNumber')
+            });
+
+            alert('Flight added successfully!');
+            document.getElementById('closeAddFlightModal').click(); // Close modal
+
+            // Refresh flights section (stub for now)
+            document.getElementById('flightContainer').innerHTML += `
+                <div class="flight-card">
+                    <p>Origin: ${formData.get('origin')}</p>
+                    <p>Date: ${formData.get('date')}</p>
+                    <p>Flight Number: ${formData.get('flightNumber')}</p>
+                </div>
+            `;
+        });
+    }   
 
     // Add Expense functionality
     initializeModal('addExpenseButton', 'addExpenseModal', 'closeAddExpenseModal');
