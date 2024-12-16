@@ -1,39 +1,111 @@
-
 <!DOCTYPE html>
 <html>
 <head>
     <title>Manager Home</title>
     <link rel="stylesheet" href="assets/css/styles.css">
     <script>
-        function loadApprovalRequests() {
-            fetch('../backend/fetch_requests.php')
-                .then(response => response.json())
+        window.onload = function () {
+            fetch('../backend/session_manager.php')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Session invalid. Redirecting to login...");
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    const table = document.querySelector('#approvalRequestsTable tbody');
-                    table.innerHTML = ''; // Clear existing rows
-                    data.forEach(request => {
+                    const welcomeMessage = `Welcome, ${data.username}`;
+                    document.getElementById('welcomeMessage').textContent = welcomeMessage;
+                    loadApprovalRequests(data.user_id);
+                })
+                .catch(() => window.location.href = 'index.html');
+        };
+
+        // Fetch and display approval requests
+        function loadApprovalRequests(managerId) {
+            fetch(`../backend/fetch_requests.php?manager_id=${managerId}`)
+                .then(response => response.json())
+                .then(trips => {
+                    const tableBody = document.querySelector('#approvalRequestsTable tbody');
+                    tableBody.innerHTML = '';
+
+                    trips.forEach(trip => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td>${request.id}</td>
-                            <td>${request.destination}</td>
-                            <td>${request.start_date}</td>
-                            <td>${request.end_date}</td>
-                            <td>${request.fname} ${request.lname}</td>
+                            <td>${trip.id}</td>
+                            <td>${trip.destination}</td>
+                            <td>${trip.start_date}</td>
+                            <td>${trip.end_date}</td>
+                            <td>${trip.fname} ${trip.lname}</td>
+                            <td><button onclick="toggleExpenses(${trip.id})">Expand</button></td>
                         `;
-                        table.appendChild(row);
+                        tableBody.appendChild(row);
+
+                        // Add a placeholder for expenses
+                        const expensesRow = document.createElement('tr');
+                        expensesRow.innerHTML = `
+                            <td colspan="6">
+                                <div id="expenses-${trip.id}" style="display: none;">
+                                    <p>Loading expenses...</p>
+                                </div>
+                            </td>
+                        `;
+                        tableBody.appendChild(expensesRow);
                     });
                 })
-                .catch(error => console.error('Error fetching approval requests:', error));
+                .catch(error => console.error("Error loading requests:", error));
         }
 
-        window.onload = function() {
-            loadApprovalRequests();
-        };
+        // Toggle visibility of expenses and fetch them if necessary
+        function toggleExpenses(tripId) {
+            const expensesContainer = document.getElementById(`expenses-${tripId}`);
+            if (expensesContainer.style.display === 'none') {
+                expensesContainer.style.display = 'block';
+                fetchExpenses(tripId);
+            } else {
+                expensesContainer.style.display = 'none';
+            }
+        }
+
+        // Fetch and display expenses for a trip
+        function fetchExpenses(tripId) {
+            fetch(`../backend/fetch_expenses.php?trip_id=${tripId}`)
+                .then(response => response.json())
+                .then(expenses => {
+                    const expensesContainer = document.getElementById(`expenses-${tripId}`);
+                    if (expenses.length > 0) {
+                        expensesContainer.innerHTML = expenses.map(expense => `
+                            <div class="expense-item">
+                                <p>Reason: ${expense.reason}</p>
+                                <p>Amount: ${expense.amount} ${expense.currency}</p>
+                                <p>Date: ${expense.date}</p>
+                                <div>
+                                    <button onclick="updateExpenseStatus(${expense.id}, 1)">Approve</button>
+                                    <button onclick="updateExpenseStatus(${expense.id}, 2)">Reject</button>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        expensesContainer.innerHTML = '<p>No expenses awaiting approval.</p>';
+                    }
+                })
+                .catch(error => console.error("Error loading expenses:", error));
+        }
+
+        // Update the status of an expense
+        function updateExpenseStatus(expenseId, status) {
+            fetch('../backend/update_expense_status.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ expense_id: expenseId, status: status })
+            })
+                .then(() => alert("Expense status updated successfully!"))
+                .catch(error => console.error("Error updating expense status:", error));
+        }
     </script>
 </head>
 <body>
     <div class="container">
-        <h1>Manager Home</h1>
+        <h1 id="welcomeMessage">Manager Home</h1>
 
         <section class="section">
             <h2>Approval Requests</h2>
@@ -45,6 +117,7 @@
                         <th>Start Date</th>
                         <th>End Date</th>
                         <th>Submitted By</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
