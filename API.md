@@ -19,9 +19,14 @@
 
 GET http://yourdomain.com/api/expenses.php?username=johndoe&api_key=your-api-key
 
+### **2. Fetch All Expenses for a User by Month and Year
+
 GET http://yourdomain.com/api/expenses.php?username=johndoe&month=12&year=2024&api_key=your-api-key
 
 
+
+---
+## Example Response
 
 {
     "status": "success",
