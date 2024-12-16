@@ -26,21 +26,22 @@ GET http://yourdomain.com/api/expenses.php?username=johndoe&month=12&year=2024&a
 
 
 ---
-## Example Response
+### Example Response
 
+```json
 {
     "status": "success",
     "data": [
         {
             "reason": "Hotel",
-            "amount": 500.00,
+            "amount": 500,
             "currency": "USD",
             "date": "2024-12-19",
             "full_name": "John Doe"
         },
         {
             "reason": "Flight",
-            "amount": 200.00,
+            "amount": 200,
             "currency": "USD",
             "date": "2024-12-10",
             "full_name": "John Doe"
