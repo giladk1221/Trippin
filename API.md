@@ -48,3 +48,41 @@ GET http://yourdomain.com/api/expenses.php?username=johndoe&month=12&year=2024&a
         }
     ]
 }
+
+
+## Error Codes
+
+The API returns the following error codes and corresponding messages when a request fails:
+
+| **HTTP Code** | **Error Message**       | **Description**                                                                 |
+|---------------|-------------------------|---------------------------------------------------------------------------------|
+| `400`         | `Missing username`      | The `username` parameter is required but was not provided in the request.      |             |
+| `401`         | `Missing API key`       | The `api_key` parameter is required but was not provided in the request.       |
+| `401`         | `Invalid API key`       | The provided API key is invalid or not active.                                 |
+| `404`         | `No data found`         | No expenses were found matching the given filters.                             |
+| `500`         | `An error occurred`     | A server-side error occurred while processing the request.                     |
+
+---
+
+### Example Error Responses
+
+#### **Missing Username**
+```json
+{
+    "error": "Missing username"
+}
+
+#### **Missing API key**
+```json
+{
+    "error": "Missing API key"
+}
+
+#### **Invalid API key**
+```json
+{
+    "error": "Invalid API key"
+}
+
+
+
