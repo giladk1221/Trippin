@@ -281,8 +281,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Load flights when the page is ready
-    loadFlights();
+    // Load flights when the page is ready and contains the flight container
+    if (document.getElementById('flightContainer')) {
+        loadFlights();
+    }
 
     // Add Expense functionality
     initializeModal('addExpenseButton', 'addExpenseModal', 'closeAddExpenseModal');
@@ -349,6 +351,12 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => console.error('Error loading expenses:', error));
     };
 
-    // Load expenses when the page is ready
-    loadTripExpenses();
+
+    // Load flights when the page is ready and contains the expense container
+    if (document.getElementById('expenseContainer')) {
+        loadTripExpenses();
+    }
+
+    
+        
 });
