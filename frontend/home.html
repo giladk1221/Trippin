@@ -20,7 +20,7 @@
                     console.log("Session data received:", data); // Debug: Log session data
 
                     // Display welcome message with username
-                    const welcomeMessage = `Welcome, ${data.username} (ID: ${data.user_id})`;
+                    const welcomeMessage = `Welcome, ${data.fname}`;
                     document.getElementById('welcomeMessage').textContent = welcomeMessage;
 
                     // Use user_id to fetch personalized trips
@@ -70,6 +70,20 @@
             sessionStorage.setItem('selectedTrip', JSON.stringify(tripData));
             window.location.href = 'manage_trip.html';
         }
+
+        // Function to handle manager homepage redirection
+        function goToManagerHome() {
+            fetch('../backend/session_manager.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.manager === 1) {
+                        window.location.href = 'manager_home.html';
+                    } else {
+                        alert("You are not a manager!");
+                    }
+                })
+                .catch(error => console.error("Error fetching manager status:", error));
+        }
     </script>
 </head>
 <body>
@@ -111,6 +125,12 @@
             </div>
         </div>
     </div>
+    
+    <!-- Go to Manager Homepage Button -->
+    <button id="managerHomepageButton" class="button" onclick="goToManagerHome()">
+        Go to Manager Homepage
+    </button>
+
     <script src="assets/js/scripts.js"></script>
 </body>
 </html>

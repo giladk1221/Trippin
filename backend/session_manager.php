@@ -11,6 +11,8 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['username'])) {
 header('Content-Type: application/json');
 echo json_encode([
     "user_id" => $_SESSION['user_id'],
-    "username" => $_SESSION['username']
+    "username" => $_SESSION['username'],
+    "fname" => $_SESSION['fname'],
+    "manager" => $_SESSION['manager']
 ]);
 ?>

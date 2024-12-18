@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Prepare the SQL statement to prevent SQL injection
-    $sql = "SELECT id, username FROM user WHERE username = ? AND password = ?";
+    $sql = "SELECT id, username, fname, manager FROM user WHERE username = ? AND password = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ss", $username, $password);
     $stmt->execute();
@@ -36,6 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Save user data in the session
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
+        $_SESSION['fname'] = $user['fname'];
+        $_SESSION['manager'] = $user['manager'];
 
         // Redirect the user to home.html
         header("Location: ../frontend/home.html");
