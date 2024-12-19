@@ -5,65 +5,354 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trippin' - Home</title>
     <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #fff;
+            color: #333;
+        }
+
+        /* Header Bar */
+        .header {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            background-color: #FF6A52;
+            color: #fff;
+            padding: 10px 20px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            flex-wrap: wrap;
+        }
+
+        .header .app-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-right: 20px;
+        }
+
+        .header .welcome-message {
+            font-size: 16px;
+            text-align: left;
+            padding-left: 20px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-shrink: 0;
+        }
+
+        .header .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        .header .nav-buttons a,
+        .header .nav-buttons button {
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            font-size: 14px;
+            transition: background 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .header .nav-buttons a:hover,
+        .header .nav-buttons button:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 60px; /* Push down below navigation bar */
+            width: 100%;
+            height: 200px; /* Fixed height for the header image */
+            overflow: hidden;
+            position: relative;
+        }
+
+        .page-header img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Content */
+        .content {
+            margin-top: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Carousel */
+        .carousel-container {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .carousel-wrapper {
+            display: flex;
+            overflow-x: auto;
+            gap: 30px;
+            padding: 10px;
+            scroll-behavior: smooth;
+            width: 100%;
+        }
+
+        .trip-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 350px;
+            flex-shrink: 0;
+            text-align: center;
+        }
+
+        .trip-card h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #FF6A52;
+        }
+
+        .trip-card p {
+            font-size: 16px;
+            color: #555;
+        }
+
+        .trip-card button {
+            background: #FF6A52;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .trip-card button:hover {
+            background: #e85c46;
+        }
+
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #FF6A52;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        .carousel-nav.left {
+            left: -20px;
+        }
+
+        .carousel-nav.right {
+            right: -20px;
+        }
+
+        #addTripButton {
+            display: inline-block;
+            margin: 20px 0;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background: #FF6A52;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #addTripButton:hover {
+            background: #e85c46;
+        }
+
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 20;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        /* Mobile responsiveness */
+        @media screen and (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header .nav-buttons {
+                margin-top: 10px;
+                justify-content: space-between;
+                width: 100%;
+            }
+        }
+    </style>
     <script>
-        // Validate session on page load and handle session data
-        window.onload = function () {
+        document.addEventListener("DOMContentLoaded", function () {
+            // Validate session and fetch trips
             fetch('../backend/session_manager.php')
                 .then(response => {
-                    console.log("Response status:", response.status); // Debug: Log the response status
                     if (!response.ok) {
-                        throw new Error("Session invalid. Redirecting to login...");
+                        throw new Error("Invalid session. Redirecting to login...");
                     }
                     return response.json();
                 })
                 .then(data => {
-                    console.log("Session data received:", data); // Debug: Log session data
-
-                    // Display welcome message with username
-                    const welcomeMessage = `Welcome, ${data.fname}`;
-                    document.getElementById('welcomeMessage').textContent = welcomeMessage;
-
-                    // Use user_id to fetch personalized trips
+                    if (!data || !data.fname || !data.user_id) {
+                        throw new Error("Session data invalid.");
+                    }
+                    document.querySelector('.welcome-message').textContent = `Welcome, ${data.fname}`;
                     loadUserTrips(data.user_id);
+                    loadDestinations();  // Load destinations for dropdown
                 })
-                .catch(error => {
-                    console.error("Error during session validation:", error.message);
-                    window.location.href = 'index.html'; // Redirect to login if session is invalid
+                .catch(err => {
+                    console.error(err);
+                    alert("Session expired. Please log in again.");
+                    window.location.href = 'index.html';
                 });
-        };
 
-        // Fetch and display user-specific trips
+            // Open Add Trip Modal
+            document.getElementById("addTripButton").addEventListener("click", function () {
+                document.getElementById("addTripModal").style.display = "flex";
+            });
+
+            // Close Add Trip Modal
+            document.getElementById("closeAddTripModal").addEventListener("click", function () {
+                document.getElementById("addTripModal").style.display = "none";
+            });
+
+            // Add trip form submission
+            document.getElementById("addTripForm").addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                const destination = document.getElementById("destination").value;
+                const startDate = document.getElementById("startDate").value;
+                const endDate = document.getElementById("endDate").value;
+
+                console.log("New Trip Details:", destination, startDate, endDate);
+
+                // Close modal after adding trip
+                document.getElementById("addTripModal").style.display = "none";
+            });
+
+            // Manager homepage redirection
+            document.getElementById("managerHomepageButton").addEventListener("click", function () {
+                fetch('../backend/session_manager.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.manager === 1) {
+                            window.location.href = 'manager_home.html';
+                        } else {
+                            alert("You are not a manager!");
+                        }
+                    })
+                    .catch(err => console.error("Error fetching manager status:", err));
+            });
+
+            // Fetch destinations and populate the dropdown
+            loadDestinations();
+        });
+
+        // Fetch and populate destinations in the dropdown
+        function loadDestinations() {
+            fetch('../backend/fetch_destinations.php')  // Fetch the destinations from the backend
+                .then(response => response.json())
+                .then(data => {
+                    const destinationSelect = document.getElementById('destination');
+                    destinationSelect.innerHTML = '';  // Clear previous options
+
+                    // Add the default "Select a destination" option
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = 'Select a destination';
+                    destinationSelect.appendChild(defaultOption);
+
+                    // Populate the dropdown with destinations
+                    data.forEach(destination => {
+                        const option = document.createElement('option');
+                        option.value = destination.id;  // Assuming 'id' is the destination ID
+                        option.textContent = destination.name;  // Assuming 'name' is the destination name
+                        destinationSelect.appendChild(option);
+                    });
+                })
+                .catch(err => {
+                    console.error("Error loading destinations:", err);
+                });
+        }
+
+        // Fetch and load user trips
         function loadUserTrips(userId) {
-            console.log("Loading trips for user_id:", userId); // Debug: Log user_id
-
             fetch(`../backend/fetch_trips.php?user_id=${userId}`)
                 .then(response => {
-                    console.log("Trips response status:", response.status); // Debug: Log response status
                     if (!response.ok) {
                         throw new Error("Failed to fetch trips.");
                     }
                     return response.json();
                 })
                 .then(trips => {
-                    console.log("User trips:", trips); // Debug: Log fetched trips
-                    const tripsContainer = document.getElementById('tripContainer');
-                    tripsContainer.innerHTML = ''; // Clear existing content
-                    if (trips.length > 0) {
-                        tripsContainer.innerHTML = trips.map(trip => `
-                            <div class="trip-card">
-                                <h3>${trip.destination}</h3>
-                                <p>${trip.start_date} to ${trip.end_date}</p>
-                                <button onclick="viewTrip('${trip.id}', '${trip.destination}', '${trip.start_date}', '${trip.end_date}')">Manage Trip</button>
-                            </div>
-                        `).join('');
-                    } else {
-                        document.getElementById('noTripsMessage').textContent = 'No upcoming trips available.';
+                    const tripsWrapper = document.querySelector('.carousel-wrapper');
+                    tripsWrapper.innerHTML = '';
+
+                    if (trips.length === 0) {
+                        tripsWrapper.innerHTML = '<p>No upcoming trips available.</p>';
+                        return;
                     }
+
+                    // Sort trips by start date (ascending)
+                    trips.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+
+                    trips.forEach(trip => {
+                        const tripCard = document.createElement('div');
+                        tripCard.className = 'trip-card';
+                        tripCard.innerHTML = `
+                            <h3>${trip.destination}</h3>
+                            <p>${new Date(trip.start_date).toLocaleDateString()} to ${new Date(trip.end_date).toLocaleDateString()}</p>
+                            <button onclick="viewTrip('${trip.id}', '${trip.destination}', '${trip.start_date}', '${trip.end_date}')">Manage Trip</button>
+                        `;
+                        tripsWrapper.appendChild(tripCard);
+                    });
                 })
-                .catch(error => console.error("Error loading trips:", error.message));
+                .catch(err => console.error("Error loading trips:", err));
         }
 
-        // Store trip data in sessionStorage and navigate to manage_trip.html
         function viewTrip(id, destination, start_date, end_date) {
             const tripData = { id, destination, start_date, end_date };
             console.log("Storing trip data:", tripData); // Debug: Log trip data
@@ -71,66 +360,64 @@
             window.location.href = 'manage_trip.html';
         }
 
-        // Function to handle manager homepage redirection
-        function goToManagerHome() {
-            fetch('../backend/session_manager.php')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.manager === 1) {
-                        window.location.href = 'manager_home.html';
-                    } else {
-                        alert("You are not a manager!");
-                    }
-                })
-                .catch(error => console.error("Error fetching manager status:", error));
+        function scrollCarousel(direction) {
+            const wrapper = document.querySelector('.carousel-wrapper');
+            const scrollAmount = direction === 'left' ? -400 : 400;
+            wrapper.scrollBy({ left: scrollAmount, behavior: 'smooth' });
         }
     </script>
 </head>
 <body>
-    <div class="container">
-        <header class="section">
-            <h1 id="welcomeMessage">Welcome, User</h1>
-            <nav>
-                <a href="history.html" class="button">View Trip History</a>
-            </nav>
-        </header>
-
-        <h2 class="section-title">Upcoming Trips</h2>
-        <section class="section" id="upcomingTripsSection">
-            <div id="tripContainer">
-                <p id="noTripsMessage">Loading your trips...</p>
-            </div>
-            <button id="addTripButton" class="button">Add Trip</button>
-        </section>
-
-        <!-- Add Trip Modal -->
-        <div id="addTripModal" class="modal hidden">
-            <div class="modal-overlay"></div>
-            <div class="modal-content">
-                <h2>Add Trip</h2>
-                <form id="addTripForm">
-                    <label for="destination">Destination:</label>
-                    <select id="destination" name="destination" required>
-                        <option value="" disabled selected>Select a destination</option>
-                    </select>
-                    <label for="startDate">Start Date:</label>
-                    <input type="date" id="startDate" name="start_date" required>
-                    <label for="endDate">End Date:</label>
-                    <input type="date" id="endDate" name="end_date" required>
-                    <div class="form-buttons">
-                        <button type="submit" class="button">Save</button>
-                        <button type="button" id="closeAddTripModal" class="button">Cancel</button>
-                    </div>
-                </form>
-            </div>
+    <!-- Header -->
+    <div class="header">
+        <div class="app-name">Trippin'</div>
+        <div class="welcome-message">Welcome, User</div>
+        <div class="nav-buttons">
+            <a href="home.html">Home</a>
+            <a href="history.html">History</a>
+            <button id="managerHomepageButton">Manager Home</button>
         </div>
     </div>
-    
-    <!-- Go to Manager Homepage Button -->
-    <button id="managerHomepageButton" class="button" onclick="goToManagerHome()">
-        Go to Manager Homepage
-    </button>
 
+    <!-- Page Header -->
+    <div class="page-header">
+        <img src="assets/images/header-placeholder.jpg" alt="Header Image Placeholder">
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+        <h2>Upcoming Trips</h2>
+        <div class="carousel-container">
+            <button class="carousel-nav left" onclick="scrollCarousel('left')">&lt;</button>
+            <div class="carousel-wrapper">
+                <p>Loading trips...</p>
+            </div>
+            <button class="carousel-nav right" onclick="scrollCarousel('right')">&gt;</button>
+        </div>
+        <button id="addTripButton" class="button">Add Trip</button>
+    </div>
+
+    <!-- Add Trip Modal -->
+    <div id="addTripModal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <h2>Add Trip</h2>
+            <form id="addTripForm">
+                <label for="destination">Destination:</label>
+                <select id="destination" name="destination" required>
+                    <option value="" disabled selected>Select a destination</option>
+                </select>
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate" name="start_date" required>
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate" name="end_date" required>
+                <div class="form-buttons">
+                    <button type="submit" class="button">Save</button>
+                    <button type="button" id="closeAddTripModal" class="button">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <script src="assets/js/scripts.js"></script>
 </body>
 </html>

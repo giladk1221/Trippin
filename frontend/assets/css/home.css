@@ -1,0 +1,140 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #FF6A52, #F3F3F3);
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header.section {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+header.section h1 {
+    font-size: 28px;
+    color: #FF6A52; /* Coral */
+}
+
+nav {
+    margin-top: 10px;
+}
+
+nav .button {
+    background: #FF6A52;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+nav .button:hover {
+    background: #e85c46;
+}
+
+.section-title {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #333;
+    text-align: center;
+}
+
+/* Carousel styles */
+.carousel-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.carousel-wrapper {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 10px;
+    width: 100%;
+}
+
+.trip-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    width: 300px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.trip-card h3 {
+    font-size: 20px;
+    color: #FF6A52;
+}
+
+.trip-card p {
+    font-size: 14px;
+    color: #555;
+}
+
+.trip-card button {
+    background: #FF6A52;
+    color: #fff;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.trip-card button:hover {
+    background: #e85c46;
+}
+
+.carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #FF6A52;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.carousel-nav:hover {
+    background: #e85c46;
+}
+
+.carousel-nav.left {
+    left: 10px;
+}
+
+.carousel-nav.right {
+    right: 10px;
+}
+
+@media (max-width: 768px) {
+    .trip-card {
+        width: 90%;
+    }
+
+    .carousel-nav {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+    }
+}

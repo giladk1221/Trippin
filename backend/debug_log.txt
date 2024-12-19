@@ -1,0 +1,6 @@
+Array
+(
+    [destination] => Germany
+    [start_date] => 2025-03-19
+    [end_date] => 2024-03-28
+)
