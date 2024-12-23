@@ -1,6 +1,6 @@
 <?php
 // Aviationstack API URL and Access Key
-$apiUrl = "https://api.aviationstack.com/v1/airports?access_key=86101b1225ac1e61a179e62b69833bc2&offset=5300";
+$apiUrl = "https://api.aviationstack.com/v1/airports?access_key=a24b30bc91d5e2b8de2873c3d3fcd50b&offset=5300";
 
 // Use file_get_contents to fetch the API response
 $response = file_get_contents($apiUrl);
