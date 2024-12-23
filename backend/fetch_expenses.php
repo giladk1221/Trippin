@@ -17,7 +17,7 @@ if (!$trip_id) {
     exit();
 }
 
-$sql = "SELECT reason, amount, date, currency FROM expense WHERE trip_id = ?";
+$sql = "SELECT id, reason, amount, date, currency, status FROM expense WHERE trip_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $trip_id);
 $stmt->execute();

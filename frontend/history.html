@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trippin' - Trip History</title>
     <link rel="stylesheet" href="assets/css/styles.css">
-    <script src="assets/js/scripts.js" defer></script>
 </head>
 <body>
     <div class="container">
@@ -16,13 +15,95 @@
             </nav>
         </header>
 
-        <h2 class="section-title">Past Trips and Expenses</h2>
+        <h2 class="section-title">Past Trips</h2>
         <section class="section" id="pastTripsSection">
             <ul id="pastTripsList">
-                <p id="noPastTripsMessage">You currently have no past trips or expenses to display.</p>
-                <!-- Dynamic past trips and expenses will be loaded here -->
+                <p id="noPastTripsMessage">Loading...</p>
             </ul>
         </section>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const userId = new URLSearchParams(window.location.search).get('user_id');
+
+            if (!userId) {
+                const message = document.getElementById('noPastTripsMessage');
+                message.textContent = "User ID is missing. Unable to load trips.";
+                return;
+            }
+
+            fetch(`../backend/fetch_history_trips.php?user_id=${userId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch trips.");
+                    }
+                    return response.json();
+                })
+                .then(async trips => {
+                    const list = document.getElementById('pastTripsList');
+                    const message = document.getElementById('noPastTripsMessage');
+
+                    if (trips.length === 0) {
+                        message.textContent = "You currently have no past trips to display.";
+                    } else {
+                        message.style.display = "none";
+
+                        const tripElements = await Promise.all(
+                            trips.map(async trip => {
+                                const statusLabel = trip.status === 1 
+                                    ? "Pending Manager Approval" 
+                                    : "Manager Approval Completed";
+
+                                if (trip.status === 2) {
+                                    const expenses = await fetchExpenses(trip.id);
+                                    return `
+                                        <li class="trip-item">
+                                            <h3>${trip.destination}</h3>
+                                            <p>Date: ${new Date(trip.start_date).toLocaleDateString()} - ${new Date(trip.end_date).toLocaleDateString()}</p>
+                                            <p>Status: ${statusLabel}</p>
+                                            <h4>Expenses:</h4>
+                                            <ul>
+                                                ${expenses.map(expense => `
+                                                    <li>
+                                                        Reason: ${expense.reason}, 
+                                                        Amount: ${expense.amount} ${expense.currency}, 
+                                                        Date: ${new Date(expense.date).toLocaleDateString()}
+                                                    </li>
+                                                `).join('')}
+                                            </ul>
+                                        </li>
+                                    `;
+                                } else {
+                                    return `
+                                        <li class="trip-item">
+                                            <h3>${trip.destination}</h3>
+                                            <p>Date: ${new Date(trip.start_date).toLocaleDateString()} - ${new Date(trip.end_date).toLocaleDateString()}</p>
+                                            <p>Status: ${statusLabel}</p>
+                                        </li>
+                                    `;
+                                }
+                            })
+                        );
+
+                        list.innerHTML = tripElements.join('');
+                    }
+                })
+                .catch(err => {
+                    console.error("Error loading trip history:", err);
+                    const message = document.getElementById('noPastTripsMessage');
+                    message.textContent = "Failed to load trip history.";
+                });
+        });
+
+        async function fetchExpenses(tripId) {
+            const response = await fetch(`../backend/fetch_expenses.php?trip_id=${tripId}`);
+            if (!response.ok) {
+                console.error(`Failed to fetch expenses for trip ${tripId}`);
+                return [];
+            }
+            return await response.json();
+        }
+    </script>
 </body>
 </html>

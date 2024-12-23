@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,8 +6,9 @@
     <title>Trippin' - Manage Budgets</title>
     <link rel="stylesheet" href="assets/css/styles.css">
     <script>
+        // Load destinations and populate the table
         function loadDestinations() {
-            fetch('../backend/fetch_destinations.php')
+            fetch('../backend/fetch_destinations_budget.php')
                 .then(response => response.json())
                 .then(data => {
                     const tableBody = document.querySelector('#budgetsTable tbody');
@@ -32,30 +32,63 @@
                 .catch(error => console.error('Error fetching destinations:', error));
         }
 
-        window.onload = function() {
+        // Initialize the page on load
+        window.onload = function () {
             loadDestinations();
         };
     </script>
 </head>
 <body>
     <div class="container">
+        <!-- Header Section -->
         <header class="section">
             <h1>Manage Budgets</h1>
         </header>
 
+        <!-- Set Budget Section -->
         <section class="section" id="setBudgetSection">
             <h2 class="section-title">Set and Update Budgets</h2>
             <form id="setBudgetForm">
                 <label for="destination">Destination:</label>
                 <input type="text" id="destination" name="destination" required>
+
                 <label for="budgetAmount">Budget Amount:</label>
                 <input type="number" id="budgetAmount" name="budgetAmount" required>
+
                 <div class="form-buttons">
                     <button type="submit" class="button">Save</button>
                 </div>
             </form>
         </section>
 
+        <script>
+            // Handle form submission with AJAX
+            document.getElementById('setBudgetForm').addEventListener('submit', function (event) {
+                event.preventDefault(); // Prevent default form submission
+
+                const formData = new FormData(this);
+
+                fetch('../backend/manage_budget.php', {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        // Refresh the page to load updated budgets
+                        window.location.reload();
+                    } else {
+                        alert(data.message || "Failed to update budget.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error during form submission:", error);
+                    alert("An error occurred while saving the budget.");
+                });
+            });
+        </script>
+
+        <!-- Current Budgets Section -->
         <section class="section" id="currentBudgetsSection">
             <h2 class="section-title">Current Budgets</h2>
             <table class="table" id="budgetsTable">
@@ -63,7 +96,7 @@
                     <tr>
                         <th>Country</th>
                         <th>Daily Budget</th>
-                        <th>Last Update Time</th>
+                        <th>Last Updated At</th>
                         <th>Last Updated By</th>
                     </tr>
                 </thead>

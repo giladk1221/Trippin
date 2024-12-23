@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -37,6 +38,7 @@
                             <td>${trip.end_date}</td>
                             <td>${trip.fname} ${trip.lname}</td>
                             <td><button onclick="toggleExpenses(${trip.id})">Expand</button></td>
+                            <td><button onclick="CompleteReview(${trip.id})">Submit</button></td>
                         `;
                         tableBody.appendChild(row);
 
@@ -78,6 +80,7 @@
                                 <p>Reason: ${expense.reason}</p>
                                 <p>Amount: ${expense.amount} ${expense.currency}</p>
                                 <p>Date: ${expense.date}</p>
+                                <p>Status: ${expense.status}</p>
                                 <div>
                                     <button onclick="updateExpenseStatus(${expense.id}, 1)">Approve</button>
                                     <button onclick="updateExpenseStatus(${expense.id}, 2)">Reject</button>
@@ -91,15 +94,32 @@
                 .catch(error => console.error("Error loading expenses:", error));
         }
 
-        // Update the status of an expense
+        // Update the status of an expense and refresh the page
         function updateExpenseStatus(expenseId, status) {
             fetch('../backend/update_expense_status.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ expense_id: expenseId, status: status })
             })
-                .then(() => alert("Expense status updated successfully!"))
+                .then(() => {
+                    alert("Expense status updated successfully!");
+                    location.reload();
+                })
                 .catch(error => console.error("Error updating expense status:", error));
+        }
+
+        // Mark a trip as complete by setting its status to '2' and refresh the page
+        function CompleteReview(tripId) {
+            fetch('../backend/update_trip_status.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ trip_id: tripId, status: 2 })
+            })
+                .then(() => {
+                    alert("Trip review completed!");
+                    location.reload();
+                })
+                .catch(error => console.error("Error completing trip review:", error));
         }
     </script>
 </head>
