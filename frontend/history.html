@@ -68,7 +68,8 @@
                                                     <li>
                                                         Reason: ${expense.reason}, 
                                                         Amount: ${expense.amount} ${expense.currency}, 
-                                                        Date: ${new Date(expense.date).toLocaleDateString()}
+                                                        Date: ${new Date(expense.date).toLocaleDateString()},
+                                                        status: ${expense.status}
                                                     </li>
                                                 `).join('')}
                                             </ul>

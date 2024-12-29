@@ -28,5 +28,5 @@ while ($row = $result->fetch_assoc()) {
     $expenses[] = $row;
 }
 
-echo json_encode($expenses);
+echo json_encode($expenses, JSON_NUMERIC_CHECK); // Ensure numbers are preserved
 ?>
