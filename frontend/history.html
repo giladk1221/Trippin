@@ -16,9 +16,20 @@
         </header>
 
         <h2 class="section-title">Past Trips</h2>
-        <section class="section" id="pastTripsSection">
-            <ul id="pastTripsList">
-                <p id="noPastTripsMessage">Loading...</p>
+        
+        <!-- Section for Manager Approval Completed Trips -->
+        <section class="section">
+            <h2 class="section-title">Manager Approval Completed</h2>
+            <ul id="completedTripsList">
+                <p id="noCompletedTripsMessage">Loading...</p>
+            </ul>
+        </section>
+
+        <!-- Section for Pending Manager Approval Trips -->
+        <section class="section">
+            <h2 class="section-title">Pending Manager Approval</h2>
+            <ul id="pendingTripsList">
+                <p id="noPendingTripsMessage">Loading...</p>
             </ul>
         </section>
     </div>
@@ -41,53 +52,59 @@
                     return response.json();
                 })
                 .then(async trips => {
-                    const list = document.getElementById('pastTripsList');
-                    const message = document.getElementById('noPastTripsMessage');
+                    const completedTripsList = document.getElementById('completedTripsList');
+                    const pendingTripsList = document.getElementById('pendingTripsList');
+                    const noCompletedTripsMessage = document.getElementById('noCompletedTripsMessage');
+                    const noPendingTripsMessage = document.getElementById('noPendingTripsMessage');
 
-                    if (trips.length === 0) {
-                        message.textContent = "You currently have no past trips to display.";
+                    // Filter trips into categories
+                    const completedTrips = trips.filter(trip => trip.status === 2);
+                    const pendingTrips = trips.filter(trip => trip.status === 1);
+
+                    // Render completed trips
+                    if (completedTrips.length === 0) {
+                        noCompletedTripsMessage.textContent = "No completed trips to display.";
                     } else {
-                        message.style.display = "none";
-
-                        const tripElements = await Promise.all(
-                            trips.map(async trip => {
-                                const statusLabel = trip.status === 1 
-                                    ? "Pending Manager Approval" 
-                                    : "Manager Approval Completed";
-
-                                if (trip.status === 2) {
-                                    const expenses = await fetchExpenses(trip.id);
-                                    return `
-                                        <li class="trip-item">
-                                            <h3>${trip.destination}</h3>
-                                            <p>Date: ${new Date(trip.start_date).toLocaleDateString()} - ${new Date(trip.end_date).toLocaleDateString()}</p>
-                                            <p>Status: ${statusLabel}</p>
-                                            <h4>Expenses:</h4>
-                                            <ul>
-                                                ${expenses.map(expense => `
-                                                    <li>
-                                                        Reason: ${expense.reason}, 
-                                                        Amount: ${expense.amount} ${expense.currency}, 
-                                                        Date: ${new Date(expense.date).toLocaleDateString()},
-                                                        status: ${expense.status}
-                                                    </li>
-                                                `).join('')}
-                                            </ul>
-                                        </li>
-                                    `;
-                                } else {
-                                    return `
-                                        <li class="trip-item">
-                                            <h3>${trip.destination}</h3>
-                                            <p>Date: ${new Date(trip.start_date).toLocaleDateString()} - ${new Date(trip.end_date).toLocaleDateString()}</p>
-                                            <p>Status: ${statusLabel}</p>
-                                        </li>
-                                    `;
-                                }
+                        noCompletedTripsMessage.style.display = "none";
+                        const completedTripElements = await Promise.all(
+                            completedTrips.map(async trip => {
+                                const expenses = await fetchExpenses(trip.id);
+                                return `
+                                    <li class="trip-item">
+                                        <h3>${trip.destination}</h3>
+                                        <p>Date: ${new Date(trip.start_date).toLocaleDateString()} - ${new Date(trip.end_date).toLocaleDateString()}</p>
+                                        <p>Status: Manager Approval Completed</p>
+                                        <h4>Expenses:</h4>
+                                        <ul>
+                                            ${expenses.map(expense => `
+                                                <li>
+                                                    Reason: ${expense.reason}, 
+                                                    Amount: ${expense.amount} ${expense.currency}, 
+                                                    Date: ${new Date(expense.date).toLocaleDateString()},
+                                                    Status: ${expense.status}
+                                                </li>
+                                            `).join('')}
+                                        </ul>
+                                    </li>
+                                `;
                             })
                         );
+                        completedTripsList.innerHTML = completedTripElements.join('');
+                    }
 
-                        list.innerHTML = tripElements.join('');
+                    // Render pending trips
+                    if (pendingTrips.length === 0) {
+                        noPendingTripsMessage.textContent = "No pending trips to display.";
+                    } else {
+                        noPendingTripsMessage.style.display = "none";
+                        const pendingTripElements = pendingTrips.map(trip => `
+                            <li class="trip-item">
+                                <h3>${trip.destination}</h3>
+                                <p>Date: ${new Date(trip.start_date).toLocaleDateString()} - ${new Date(trip.end_date).toLocaleDateString()}</p>
+                                <p>Status: Pending Manager Approval</p>
+                            </li>
+                        `);
+                        pendingTripsList.innerHTML = pendingTripElements.join('');
                     }
                 })
                 .catch(err => {
