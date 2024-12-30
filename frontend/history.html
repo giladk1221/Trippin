@@ -4,33 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trippin' - Trip History</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/history.css">
 </head>
 <body>
-    <div class="container">
-        <header class="section">
-            <h1>Trip History</h1>
-            <nav>
-                <a href="home.html" class="button">Back to Home</a>
-            </nav>
-        </header>
+    <!-- Header -->
+    <div class="header">
+        <div class="left-header">
+            <span class="app-name">Trippin'</span>
+        </div>
+        <div class="center-buttons">
+            <a href="home.html" class="nav-button">Home</a>
+        </div>
+    </div>
 
-        <h2 class="section-title">Past Trips</h2>
-        
+    <!-- Page Header -->
+    <div class="page-header">
+        <img src="assets/images/header-placeholder.jpg" alt="Header Image">
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+        <h2>Trip History</h2>
+
         <!-- Section for Manager Approval Completed Trips -->
         <section class="section">
-            <h2 class="section-title">Manager Approval Completed</h2>
-            <ul id="completedTripsList">
-                <p id="noCompletedTripsMessage">Loading...</p>
-            </ul>
+            <h3 class="section-title">Manager Approval Completed</h3>
+            <div class="carousel-container">
+                <button class="carousel-nav left" onclick="scrollCarousel('completedTripsList', 'left')">&lt;</button>
+                <div class="carousel-wrapper" id="completedTripsList">
+                    <p id="noCompletedTripsMessage" class="no-data-message">Loading...</p>
+                </div>
+                <button class="carousel-nav right" onclick="scrollCarousel('completedTripsList', 'right')">&gt;</button>
+            </div>
         </section>
 
         <!-- Section for Pending Manager Approval Trips -->
         <section class="section">
-            <h2 class="section-title">Pending Manager Approval</h2>
-            <ul id="pendingTripsList">
-                <p id="noPendingTripsMessage">Loading...</p>
-            </ul>
+            <h3 class="section-title">Pending Manager Approval</h3>
+            <div class="carousel-container">
+                <button class="carousel-nav left" onclick="scrollCarousel('pendingTripsList', 'left')">&lt;</button>
+                <div class="carousel-wrapper" id="pendingTripsList">
+                    <p id="noPendingTripsMessage" class="no-data-message">Loading...</p>
+                </div>
+                <button class="carousel-nav right" onclick="scrollCarousel('pendingTripsList', 'right')">&gt;</button>
+            </div>
         </section>
     </div>
 
@@ -39,7 +56,7 @@
             const userId = new URLSearchParams(window.location.search).get('user_id');
 
             if (!userId) {
-                const message = document.getElementById('noPastTripsMessage');
+                const message = document.getElementById('noCompletedTripsMessage');
                 message.textContent = "User ID is missing. Unable to load trips.";
                 return;
             }
@@ -70,22 +87,33 @@
                             completedTrips.map(async trip => {
                                 const expenses = await fetchExpenses(trip.id);
                                 return `
-                                    <li class="trip-item">
+                                    <div class="trip-card">
                                         <h3>${trip.destination}</h3>
-                                        <p>Date: ${new Date(trip.start_date).toLocaleDateString()} - ${new Date(trip.end_date).toLocaleDateString()}</p>
-                                        <p>Status: Manager Approval Completed</p>
+                                        <p>${new Date(trip.start_date).toLocaleDateString()} - ${new Date(trip.end_date).toLocaleDateString()}</p>
                                         <h4>Expenses:</h4>
-                                        <ul>
-                                            ${expenses.map(expense => `
-                                                <li>
-                                                    Reason: ${expense.reason}, 
-                                                    Amount: ${expense.amount} ${expense.currency}, 
-                                                    Date: ${new Date(expense.date).toLocaleDateString()},
-                                                    Status: ${expense.status}
-                                                </li>
-                                            `).join('')}
-                                        </ul>
-                                    </li>
+                                        ${expenses.length > 0 ? `
+                                            <table class="expenses-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Reason</th>
+                                                        <th>Amount</th>
+                                                        <th>Date</th>
+                                                        <th>Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    ${expenses.map(expense => `
+                                                        <tr>
+                                                            <td>${expense.reason}</td>
+                                                            <td>${expense.amount}&nbsp;${expense.currency}</td>
+                                                            <td>${new Date(expense.date).toLocaleDateString()}</td>
+                                                            <td>${expense.status === 1 ? 'Approved' : expense.status === 2 ? 'Rejected' : 'Pending'}</td>
+                                                        </tr>
+                                                    `).join('')}
+                                                </tbody>
+                                            </table>
+                                        ` : '<p>No expenses recorded for this trip.</p>'}
+                                    </div>
                                 `;
                             })
                         );
@@ -98,18 +126,17 @@
                     } else {
                         noPendingTripsMessage.style.display = "none";
                         const pendingTripElements = pendingTrips.map(trip => `
-                            <li class="trip-item">
+                            <div class="trip-card">
                                 <h3>${trip.destination}</h3>
-                                <p>Date: ${new Date(trip.start_date).toLocaleDateString()} - ${new Date(trip.end_date).toLocaleDateString()}</p>
-                                <p>Status: Pending Manager Approval</p>
-                            </li>
+                                <p>${new Date(trip.start_date).toLocaleDateString()} - ${new Date(trip.end_date).toLocaleDateString()}</p>
+                            </div>
                         `);
                         pendingTripsList.innerHTML = pendingTripElements.join('');
                     }
                 })
                 .catch(err => {
                     console.error("Error loading trip history:", err);
-                    const message = document.getElementById('noPastTripsMessage');
+                    const message = document.getElementById('noCompletedTripsMessage');
                     message.textContent = "Failed to load trip history.";
                 });
         });
@@ -121,6 +148,15 @@
                 return [];
             }
             return await response.json();
+        }
+
+        function scrollCarousel(containerId, direction) {
+            const container = document.getElementById(containerId);
+            if (direction === 'left') {
+                container.scrollBy({ left: -300, behavior: 'smooth' });
+            } else {
+                container.scrollBy({ left: 300, behavior: 'smooth' });
+            }
         }
     </script>
 </body>
