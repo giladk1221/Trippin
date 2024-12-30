@@ -257,4 +257,26 @@ body {
     .expenses-table-wrapper {
         overflow-x: auto;
     }
+
+
+    .expand-button {
+        background-color: #FF6A52;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        font-size: 14px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: background-color 0.3s ease;
+    }
+    
+    .expand-button:hover {
+        background-color: #e85c46;
+    }
+    
+    .expenses-table-wrapper {
+        margin-top: 15px;
+        display: none; /* Initially hide the table */
+    }
 }

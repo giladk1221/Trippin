@@ -62,12 +62,7 @@
             }
 
             fetch(`../backend/fetch_history_trips.php?user_id=${userId}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Failed to fetch trips.");
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(async trips => {
                     const completedTripsList = document.getElementById('completedTripsList');
                     const pendingTripsList = document.getElementById('pendingTripsList');
@@ -78,7 +73,7 @@
                     const completedTrips = trips.filter(trip => trip.status === 2);
                     const pendingTrips = trips.filter(trip => trip.status === 1);
 
-                    // Render completed trips
+                    // Render completed trips with "Expand" button
                     if (completedTrips.length === 0) {
                         noCompletedTripsMessage.textContent = "No completed trips to display.";
                     } else {
@@ -90,29 +85,33 @@
                                     <div class="trip-card">
                                         <h3>${trip.destination}</h3>
                                         <p>${new Date(trip.start_date).toLocaleDateString()} - ${new Date(trip.end_date).toLocaleDateString()}</p>
-                                        <h4>Expenses:</h4>
-                                        ${expenses.length > 0 ? `
-                                            <table class="expenses-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Reason</th>
-                                                        <th>Amount</th>
-                                                        <th>Date</th>
-                                                        <th>Status</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    ${expenses.map(expense => `
+                                        <button class="expand-button" onclick="toggleTable(${trip.id})">
+                                            Details
+                                        </button>
+                                        <div class="expenses-table-wrapper" id="expenses-${trip.id}" style="display: none;">
+                                            ${expenses.length > 0 ? `
+                                                <table class="expenses-table">
+                                                    <thead>
                                                         <tr>
-                                                            <td>${expense.reason}</td>
-                                                            <td>${expense.amount}&nbsp;${expense.currency}</td>
-                                                            <td>${new Date(expense.date).toLocaleDateString()}</td>
-                                                            <td>${expense.status === 1 ? 'Approved' : expense.status === 2 ? 'Rejected' : 'Pending'}</td>
+                                                            <th>Reason</th>
+                                                            <th>Amount</th>
+                                                            <th>Date</th>
+                                                            <th>Status</th>
                                                         </tr>
-                                                    `).join('')}
-                                                </tbody>
-                                            </table>
-                                        ` : '<p>No expenses recorded for this trip.</p>'}
+                                                    </thead>
+                                                    <tbody>
+                                                        ${expenses.map(expense => `
+                                                            <tr>
+                                                                <td>${expense.reason}</td>
+                                                                <td>${expense.amount}&nbsp;${expense.currency}</td>
+                                                                <td>${new Date(expense.date).toLocaleDateString()}</td>
+                                                                <td>${expense.status === 1 ? 'Approved' : expense.status === 2 ? 'Rejected' : 'Pending'}</td>
+                                                            </tr>
+                                                        `).join('')}
+                                                    </tbody>
+                                                </table>
+                                            ` : '<p>No expenses recorded for this trip.</p>'}
+                                        </div>
                                     </div>
                                 `;
                             })
@@ -143,20 +142,17 @@
 
         async function fetchExpenses(tripId) {
             const response = await fetch(`../backend/fetch_expenses.php?trip_id=${tripId}`);
-            if (!response.ok) {
-                console.error(`Failed to fetch expenses for trip ${tripId}`);
-                return [];
-            }
-            return await response.json();
+            return response.ok ? await response.json() : [];
         }
 
         function scrollCarousel(containerId, direction) {
             const container = document.getElementById(containerId);
-            if (direction === 'left') {
-                container.scrollBy({ left: -300, behavior: 'smooth' });
-            } else {
-                container.scrollBy({ left: 300, behavior: 'smooth' });
-            }
+            container.scrollBy({ left: direction === 'left' ? -300 : 300, behavior: 'smooth' });
+        }
+
+        function toggleTable(tripId) {
+            const tableWrapper = document.getElementById(`expenses-${tripId}`);
+            tableWrapper.style.display = tableWrapper.style.display === 'none' ? 'block' : 'none';
         }
     </script>
 </body>
