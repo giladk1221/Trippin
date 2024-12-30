@@ -5,27 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trippin' - Manage Trip</title>
     <link rel="stylesheet" href="assets/css/styles.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
+            if (tripData) {
+                document.getElementById('tripHeader').textContent = `Manage Trip: ${tripData.destination}`;
+                document.getElementById('tripDates').textContent = `${tripData.start_date} to ${tripData.end_date}`;
+                console.log("Managing trip with ID:", tripData.id); 
+                loadTripExpenses();
+            } else {
+                document.getElementById('tripHeader').textContent = 'No Trip Selected';
+            }
+        });
+
+        function loadTripExpenses() {
+            const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
+            if (!tripData || !tripData.id) {
+                console.error("Trip data or trip ID is missing.");
+                return;
+            }
+
+            fetch(`../backend/fetch_expenses.php?trip_id=${tripData.id}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch expenses.");
+                    }
+                    return response.json();
+                })
+                .then(expenses => {
+                    const expenseContainer = document.getElementById('expenseContainer');
+                    expenseContainer.innerHTML = '';
+                    if (expenses.length > 0) {
+                        expenses.forEach(expense => {
+                            const expenseCard = `
+                                <div class="expense-card">
+                                    <p>Reason: ${expense.reason}</p>
+                                    <p>Amount: ${expense.amount} ${expense.currency}</p>
+                                    <p>Date: ${expense.date}</p>
+                                </div>
+                            `;
+                            expenseContainer.innerHTML += expenseCard;
+                        });
+                    } else {
+                        expenseContainer.innerHTML = '<p>No expenses recorded for this trip.</p>';
+                    }
+                })
+                .catch(error => console.error("Error loading expenses:", error.message));
+        }
+    </script>
 </head>
 <body>
-    <!-- Header -->
-    <div class="header">
-        <div class="left-header">
-            <span class="app-name">Trippin'</span>
-            <span class="welcome-message">Welcome, User</span>
-        </div>
-        <div class="center-buttons">
-            <a href="home.html" class="nav-button">Home</a>
-            <a href="history.html" class="nav-button">History</a>
-        </div>
-    </div>
-
-    <!-- Page Header -->
-    <div class="page-header">
-        <img src="assets/images/header-placeholder.jpg" alt="Header Image">
-    </div>
-
-    <!-- Trip Details -->
-    <div class="content">
+    <div class="container">
         <header class="section">
             <h1 id="tripHeader" class="trip-header">Manage Trip</h1>
             <p id="tripDates" class="trip-dates"></p>
@@ -34,31 +64,29 @@
         <!-- Flights Section -->
         <h2 class="section-title">Flights</h2>
         <section class="section" id="flightsSection">
-            <div class="carousel-container">
-                <button class="carousel-nav left" onclick="scrollCarousel('left')">&lt;</button>
-                <div id="flightContainer" class="carousel-wrapper">
-                
-                <button class="carousel-nav right" onclick="scrollCarousel('right')">&gt;</button>
+            <div id="flightContainer">
+                <p id="noFlightsMessage">You currently have no flights.</p>
             </div>
             <button id="addFlightButton" class="button">Add Flight</button>
         </section>
 
         <!-- Add Flight Modal -->
-        <div id="addFlightModal" class="modal">
+        <div id="addFlightModal" class="modal hidden">
+            <div class="modal-overlay"></div>
             <div class="modal-content">
                 <h2>Add Flight</h2>
                 <form id="addFlightForm">
                     <label for="origin">Origin (IATA Code):</label>
-                    <select id="origin" name="iata_code" required>
+                    <select id="origin" name="iata_code" required> <!-- Updated name -->
                         <option value="" disabled selected>Select origin...</option>
                     </select>
-                    
+                
                     <label for="date">Date:</label>
                     <input type="date" id="flightDate" name="date" required>
-                    
+                
                     <label for="flightNumber">Flight Number:</label>
-                    <input type="text" id="flightNumber" name="flight_number" required>
-                    
+                    <input type="text" id="flightNumber" name="flight_number" required> <!-- Updated name -->
+                
                     <div class="form-buttons">
                         <button type="submit" class="button">Save</button>
                         <button type="button" id="closeAddFlightModal" class="button">Cancel</button>
@@ -70,14 +98,15 @@
         <!-- Expenses Section -->
         <h2 class="section-title">Expenses</h2>
         <section class="section" id="expensesSection">
-            <div id="expenseContainer" class="card-container">
+            <div id="expenseContainer">
                 <p id="noExpensesMessage">Loading expenses...</p>
             </div>
             <button id="addExpenseButton" class="button">Add Expense</button>
         </section>
 
         <!-- Add Expense Modal -->
-        <div id="addExpenseModal" class="modal">
+        <div id="addExpenseModal" class="modal hidden">
+            <div class="modal-overlay"></div>
             <div class="modal-content">
                 <h2>Add Expense</h2>
                 <form id="addExpenseForm" enctype="multipart/form-data">
@@ -106,56 +135,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Scripts -->
     <script src="assets/js/scripts.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Fetch session data and display user details
-            fetch('../backend/session_manager.php')
-                .then(response => response.json())
-                .then(data => {
-                    if (!data || !data.user_id) {
-                        alert("Session expired. Please log in again.");
-                        window.location.href = 'index.html';
-                    } else {
-                        document.querySelector('.welcome-message').textContent = `Welcome, ${data.fname}`;
-                        
-                        // Update the History link with the user_id
-                        const historyLink = document.querySelector('a.nav-button[href="history.html"]');
-                        historyLink.href = `history.html?user_id=${data.user_id}`;   
-                        loadUserTrips(data.user_id);
-                        loadAirports();
-
-                        // Manager Home button functionality
-                        const managerButton = document.getElementById("managerHomepageButton");
-                        managerButton?.addEventListener("click", function () {
-                            if (data.manager === 1) {
-                                window.location.href = 'manager_home.html';
-                            } else {
-                                alert("You do not have manager permissions.");
-                            }
-                        });
-                    }
-                })
-                .catch(err => console.error("Error fetching session data:", err));
-        });
-
-        function loadAirports() {
-            fetch('../backend/fetch_airports.php')
-                .then(response => response.json())
-                .then(data => {
-                    const dropdown = document.getElementById('origin');
-                    dropdown.innerHTML = '<option value="" disabled selected>Select origin...</option>';
-                    data.forEach(airport => {
-                        const option = document.createElement('option');
-                        option.value = airport.code;
-                        option.textContent = `${airport.name} (${airport.code})`;
-                        dropdown.appendChild(option);
-                    });
-                })
-                .catch(err => console.error("Error loading airports:", err));
-        }
-    </script>
 </body>
 </html>
