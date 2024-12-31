@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trippin' - Manage Trip</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/manage_trip.css">
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
             if (tripData) {
                 document.getElementById('tripHeader').textContent = `Manage Trip: ${tripData.destination}`;
                 document.getElementById('tripDates').textContent = `${tripData.start_date} to ${tripData.end_date}`;
-                console.log("Managing trip with ID:", tripData.id); 
+                console.log("Managing trip with ID:", tripData.id);
                 loadTripExpenses();
             } else {
                 document.getElementById('tripHeader').textContent = 'No Trip Selected';
@@ -38,14 +39,23 @@
                     if (expenses.length > 0) {
                         expenses.forEach(expense => {
                             const expenseCard = `
-                                <div class="expense-card">
-                                    <p>Reason: ${expense.reason}</p>
-                                    <p>Amount: ${expense.amount} ${expense.currency}</p>
-                                    <p>Date: ${expense.date}</p>
+                            <div class="expense-card">
+                                <p><strong>Reason:</strong> ${expense.reason}</p>
+                                <p><strong>Amount:</strong> ${expense.amount} ${expense.currency}</p>
+                                <p><strong>Date:</strong> ${expense.date}</p>
+                                <div class="expense-buttons">
+                                    <button class="edit-expense-button" data-expense-id="${expense.id}">
+                                        Edit Expense
+                                    </button>
+                                    <button class="delete-expense-button" data-expense-id="${expense.id}">
+                                        Delete Expense
+                                    </button>
                                 </div>
-                            `;
+                            </div>
+                        `;
                             expenseContainer.innerHTML += expenseCard;
                         });
+
                     } else {
                         expenseContainer.innerHTML = '<p>No expenses recorded for this trip.</p>';
                     }
@@ -54,18 +64,43 @@
         }
     </script>
 </head>
+
 <body>
     <div class="container">
-        <header class="section">
-            <h1 id="tripHeader" class="trip-header">Manage Trip</h1>
+        <!-- Header -->
+        <div class="header">
+            <div class="left-header">
+                <span class="app-name">Trippin'</span>
+            </div>
+            <div class="center-buttons">
+                <a href="home.html" class="nav-button">Home</a>
+            </div>
+            <div class="right-header">
+                <a href="index.html" class="nav-button logout-button">Logout</a>
+            </div>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <img src="assets/images/header-placeholder.jpg" alt="Header Image">
+        </div>
+
+        <!-- Destination Name and Trip Dates -->
+        <div class="trip-details">
+            <h1 id="tripHeader" class="trip-destination">Manage Trip</h1>
             <p id="tripDates" class="trip-dates"></p>
-        </header>
+        </div>
+
+        <!-- Submit Trip Button -->
+        <div class="submit-trip-container">
+            <button id="submitTripButton" class="submit-trip-button">Submit Trip</button>
+        </div>
 
         <!-- Flights Section -->
         <h2 class="section-title">Flights</h2>
-        <section class="section" id="flightsSection">
+        <section class="section content" id="flightsSection">
             <div id="flightContainer">
-                <p id="noFlightsMessage">You currently have no flights.</p>
+                <p id="noFlightsMessage" class="no-items-message">You currently have no flights.</p>
             </div>
             <button id="addFlightButton" class="button">Add Flight</button>
         </section>
@@ -77,16 +112,16 @@
                 <h2>Add Flight</h2>
                 <form id="addFlightForm">
                     <label for="origin">Origin (IATA Code):</label>
-                    <select id="origin" name="iata_code" required> <!-- Updated name -->
+                    <select id="origin" name="iata_code" required>
                         <option value="" disabled selected>Select origin...</option>
                     </select>
-                
+
                     <label for="date">Date:</label>
                     <input type="date" id="flightDate" name="date" required>
-                
+
                     <label for="flightNumber">Flight Number:</label>
-                    <input type="text" id="flightNumber" name="flight_number" required> <!-- Updated name -->
-                
+                    <input type="text" id="flightNumber" name="flight_number" required>
+
                     <div class="form-buttons">
                         <button type="submit" class="button">Save</button>
                         <button type="button" id="closeAddFlightModal" class="button">Cancel</button>
@@ -97,12 +132,42 @@
 
         <!-- Expenses Section -->
         <h2 class="section-title">Expenses</h2>
-        <section class="section" id="expensesSection">
+        <section class="section content" id="expensesSection">
             <div id="expenseContainer">
-                <p id="noExpensesMessage">Loading expenses...</p>
+                <p id="noExpensesMessage" class="no-items-message">You currently have no expenses.</p>
             </div>
             <button id="addExpenseButton" class="button">Add Expense</button>
         </section>
+
+        <div id="editExpenseModal" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <h2>Edit Expense</h2>
+                <form id="editExpenseForm" enctype="multipart/form-data">
+                    <input type="hidden" id="editExpenseId" name="id">
+
+                    <label for="editReason">Reason:</label>
+                    <input type="text" id="editReason" name="reason" required>
+
+                    <label for="editAmount">Amount:</label>
+                    <input type="number" id="editAmount" name="amount" required>
+
+                    <label for="editDate">Date:</label>
+                    <input type="date" id="editDate" name="date" required>
+
+                    <label for="editCurrency">Currency:</label>
+                    <select id="editCurrency" name="currency" required>
+                        <option value="" disabled selected>Select Currency</option>
+                        <!-- Populate this dynamically with your backend -->
+                    </select>
+
+                    <div class="form-buttons">
+                        <button type="submit" class="button">Save</button>
+                        <button type="button" id="closeEditExpenseModal" class="button">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         <!-- Add Expense Modal -->
         <div id="addExpenseModal" class="modal hidden">
@@ -137,4 +202,5 @@
     </div>
     <script src="assets/js/scripts.js"></script>
 </body>
+
 </html>

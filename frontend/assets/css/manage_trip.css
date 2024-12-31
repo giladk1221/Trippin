@@ -1,0 +1,389 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    color: #333;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #FF6A52;
+    color: #fff;
+    padding: 10px 20px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 10;
+    height: 40px;
+}
+
+.left-header {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.app-name {
+    font-size: 25px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.center-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+}
+
+.nav-button {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    font-size: 16px;
+    transition: background 0.3s ease;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.nav-button:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.right-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex: 1;
+    padding-right: 20px;
+}
+
+.logout-button {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    font-size: 16px;
+    transition: background 0.3s ease;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    margin-right: 10px;
+}
+
+.logout-button:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* Page Header */
+.page-header {
+    margin-top: 60px;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.page-header img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.trip-details {
+    margin: 20px;
+    text-align: left;
+    padding: 0 20px;
+}
+
+.trip-destination {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.trip-dates {
+    font-size: 1.2rem;
+    color: #555;
+}
+
+/* Section Titles */
+.section-title {
+    font-size: 1.5rem;
+    color: #333;
+    margin: 20px 0;
+    text-align: left;
+    /* Align the title text to the left */
+    padding-left: 150px;
+    /* Adjusted padding to push the title right */
+}
+
+/* Content */
+.content {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    position: relative;
+    /* Allow positioning of elements inside */
+    text-align: center;
+    /* Center align content within the section */
+}
+
+/* No Items Message */
+.no-items-message {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 20px;
+    /* Space between the message and the button */
+}
+
+/* Cards */
+.flight-card,
+.expense-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    width: 50%;
+    margin: 10px auto;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.flight-card:hover,
+.expense-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.flight-card p,
+.expense-card p {
+    font-size: 1rem;
+    color: #555;
+    margin: 8px 0;
+}
+
+.google-calendar-button {
+    display: block;
+    align-items: center;
+    justify-content: center;
+    background-color: #4285F4;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease, box-shadow 0.2s ease;
+    margin: 20px auto 0;
+    /* Center button below content */
+}
+
+.google-calendar-button img {
+    width: 16px;
+    height: 16px;
+}
+
+.google-calendar-button:hover {
+    background-color: #357ae8;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons */
+.button {
+    display: block;
+    background-color: #FF6A52;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    text-align: center;
+    margin: 20px auto;
+    transition: background-color 0.3s ease;
+}
+
+.button:hover {
+    background-color: #e85c46;
+}
+
+.delete-flight-button {
+    display: block;
+    background-color: #FF6A52;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease, box-shadow 0.2s ease;
+    margin: 10px auto;
+}
+
+.delete-flight-button:hover {
+    background-color: #e85c46;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.edit-expense-button,
+.delete-expense-button {
+    background-color: #FF6A52;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease, box-shadow 0.2s ease;
+    margin: 5px;
+    /* Space between buttons */
+}
+
+.edit-expense-button:hover,
+.delete-expense-button:hover {
+    background-color: #e85c46;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Align buttons side by side */
+.expense-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    /* Space between buttons */
+    margin-top: 10px;
+    /* Space between buttons and expense content */
+}
+
+.submit-trip-button {
+    display: block;
+    background-color: #FF6A52;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    text-align: center;
+    margin: 20px auto;
+    transition: background-color 0.3s ease;
+    width: fit-content;
+    /* Center the button */
+}
+
+.submit-trip-button:hover {
+    background-color: #e85c46;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+    color: #FF6A52;
+}
+
+.modal-content form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+.modal-content form input,
+.modal-content form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.form-buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+.form-buttons .button {
+    flex: 1;
+    margin: 0 5px;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        height: auto;
+        text-align: center;
+    }
+
+    .trip-details {
+        padding: 0 10px;
+    }
+
+    .trip-destination {
+        font-size: 1.8rem;
+    }
+
+    .trip-dates {
+        font-size: 1rem;
+    }
+
+    .content {
+        width: 90%;
+        padding: 15px;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+    }
+
+    .google-calendar-button {
+        font-size: 0.8rem;
+    }
+
+    .button {
+        font-size: 0.9rem;
+        padding: 10px 15px;
+    }
+
+    .modal-content {
+        width: 95%;
+    }
+}
