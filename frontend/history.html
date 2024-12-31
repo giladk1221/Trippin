@@ -29,24 +29,16 @@
         <!-- Section for Manager Approval Completed Trips -->
         <section class="section">
             <h3 class="section-title">Manager Approval Completed</h3>
-            <div class="carousel-container">
-                <button class="carousel-nav left" onclick="scrollCarousel('completedTripsList', 'left')">&lt;</button>
-                <div class="carousel-wrapper" id="completedTripsList">
-                    <p id="noCompletedTripsMessage" class="no-data-message">Loading...</p>
-                </div>
-                <button class="carousel-nav right" onclick="scrollCarousel('completedTripsList', 'right')">&gt;</button>
+            <div id="completedTripsList" class="trip-list">
+                <p id="noCompletedTripsMessage" class="no-data-message">Loading...</p>
             </div>
         </section>
 
         <!-- Section for Pending Manager Approval Trips -->
         <section class="section">
             <h3 class="section-title">Pending Manager Approval</h3>
-            <div class="carousel-container">
-                <button class="carousel-nav left" onclick="scrollCarousel('pendingTripsList', 'left')">&lt;</button>
-                <div class="carousel-wrapper" id="pendingTripsList">
-                    <p id="noPendingTripsMessage" class="no-data-message">Loading...</p>
-                </div>
-                <button class="carousel-nav right" onclick="scrollCarousel('pendingTripsList', 'right')">&gt;</button>
+            <div id="pendingTripsList" class="trip-list">
+                <p id="noPendingTripsMessage" class="no-data-message">Loading...</p>
             </div>
         </section>
     </div>
@@ -73,7 +65,7 @@
                     const completedTrips = trips.filter(trip => trip.status === 2);
                     const pendingTrips = trips.filter(trip => trip.status === 1);
 
-                    // Render completed trips with "Expand" button
+                    // Render completed trips
                     if (completedTrips.length === 0) {
                         noCompletedTripsMessage.textContent = "No completed trips to display.";
                     } else {
@@ -145,14 +137,9 @@
             return response.ok ? await response.json() : [];
         }
 
-        function scrollCarousel(containerId, direction) {
-            const container = document.getElementById(containerId);
-            container.scrollBy({ left: direction === 'left' ? -300 : 300, behavior: 'smooth' });
-        }
-
         function toggleTable(tripId) {
             const tableWrapper = document.getElementById(`expenses-${tripId}`);
-            tableWrapper.style.display = tableWrapper.style.display === 'none' ? 'block' : 'none';
+            tableWrapper.style.display = tableWrapper.style.display === 'block' ? 'none' : 'block';
         }
     </script>
 </body>

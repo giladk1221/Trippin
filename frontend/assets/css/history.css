@@ -91,20 +91,13 @@ body {
     margin-right: auto;
 }
 
-/* Carousel */
-.carousel-container {
+/* Trip List */
+.trip-list {
     display: flex;
-    align-items: center;
-    position: relative;
-}
-
-.carousel-wrapper {
-    display: flex;
-    overflow-x: auto;
-    gap: 30px;
-    padding: 10px;
-    scroll-behavior: smooth;
-    width: 100%;
+    flex-direction: column; /* Stack cards vertically */
+    gap: 20px; /* Space between cards */
+    align-items: center; /* Center cards horizontally */
+    margin-top: 20px;
 }
 
 /* Trip Card */
@@ -114,10 +107,15 @@ body {
     border-radius: 8px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    width: 350px;
-    flex-shrink: 0;
-    text-align: center;
-    overflow: hidden; /* Prevent content overflow */
+    text-align: left;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    width: 100%; /* Ensure card takes full width */
+    max-width: 600px; /* Add max-width for responsiveness */
+}
+
+.trip-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
 }
 
 .trip-card h3 {
@@ -129,11 +127,30 @@ body {
 .trip-card p {
     font-size: 16px;
     color: #555;
+    margin: 5px 0;
+}
+
+/* Expand Button */
+.expand-button {
+    background-color: #FF6A52;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.expand-button:hover {
+    background-color: #e85c46;
 }
 
 /* Table for Expenses */
 .expenses-table-wrapper {
-    overflow-x: auto; /* Scrollable table if content exceeds card width */
+    overflow-x: auto;
+    margin-top: 15px;
 }
 
 .expenses-table {
@@ -142,7 +159,7 @@ body {
     margin-top: 10px;
     font-size: 14px;
     background-color: white;
-    table-layout: auto; /* Allow dynamic column width */
+    table-layout: auto;
 }
 
 .expenses-table th,
@@ -151,10 +168,6 @@ body {
     padding: 8px 12px;
     text-align: left;
     vertical-align: middle;
-}
-
-.expenses-table td:nth-child(2) {
-    white-space: nowrap; /* Ensure the amount column is on one line */
 }
 
 .expenses-table th {
@@ -188,61 +201,7 @@ body {
     background: #e85c46;
 }
 
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 20;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-content {
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 400px;
-}
-
-.modal-content h2 {
-    font-size: 20px;
-    color: #FF6A52;
-}
-
-/* Carousel Navigation */
-.carousel-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: #FF6A52;
-    color: #fff;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    font-size: 18px;
-    cursor: pointer;
-    z-index: 5;
-}
-
-.carousel-nav.left {
-    left: -20px;
-}
-
-.carousel-nav.right {
-    right: -20px;
-}
-
-.carousel-nav:hover {
-    background: #e85c46;
-}
-
-/* Mobile Responsiveness */
+/* Responsive Styles */
 @media screen and (max-width: 768px) {
     .header {
         flex-direction: column;
@@ -251,32 +210,10 @@ body {
     }
 
     .trip-card {
-        width: 280px;
+        width: 100%;
     }
 
     .expenses-table-wrapper {
         overflow-x: auto;
-    }
-
-
-    .expand-button {
-        background-color: #FF6A52;
-        color: white;
-        border: none;
-        padding: 8px 12px;
-        font-size: 14px;
-        border-radius: 5px;
-        cursor: pointer;
-        margin-top: 10px;
-        transition: background-color 0.3s ease;
-    }
-    
-    .expand-button:hover {
-        background-color: #e85c46;
-    }
-    
-    .expenses-table-wrapper {
-        margin-top: 15px;
-        display: none; /* Initially hide the table */
     }
 }
