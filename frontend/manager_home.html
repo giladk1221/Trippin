@@ -3,7 +3,7 @@
 <html>
 <head>
     <title>Manager Home</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/manager.css">
     <script>
         window.onload = function () {
             fetch('../backend/session_manager.php')
@@ -26,21 +26,24 @@
             fetch(`../backend/fetch_requests.php?manager_id=${managerId}`)
                 .then(response => response.json())
                 .then(trips => {
-                    const tableBody = document.querySelector('#approvalRequestsTable tbody');
+                    const tableBody = document.querySelector('#approvalRequests');
                     tableBody.innerHTML = '';
 
                     trips.forEach(trip => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${trip.id}</td>
-                            <td>${trip.destination}</td>
-                            <td>${trip.start_date}</td>
-                            <td>${trip.end_date}</td>
-                            <td>${trip.fname} ${trip.lname}</td>
-                            <td><button onclick="toggleExpenses(${trip.id})">Expand</button></td>
-                            <td><button onclick="CompleteReview(${trip.id})">Submit</button></td>
+                        const tripCard = document.createElement('div');
+                        tripCard.setAttribute("class", "trip-card");
+                        tripCard.innerHTML = `
+                            <h3>${trip.destination}</h3>
+                            <p>Submitted by: ${trip.fname} ${trip.lname}</p>
+                            <p>${trip.start_date} - ${trip.end_date}</p>
+                            <p><button class="expand-button" onclick="toggleExpenses(${trip.id})">Expand</button> 
+                            <button class="expand-button" onclick="CompleteReview(${trip.id})">Submit</button></p>
+                            <!-- Expenses container goes here -->
+                            <div id="expenses-${trip.id}" class="expenses-table-wrapper" style="display: none;">
+                                <p>Loading expenses...</p>
+                            </div>
                         `;
-                        tableBody.appendChild(row);
+                        tableBody.appendChild(tripCard);
 
                         // Add a placeholder for expenses
                         const expensesRow = document.createElement('tr');
@@ -74,19 +77,42 @@
                 .then(response => response.json())
                 .then(expenses => {
                     const expensesContainer = document.getElementById(`expenses-${tripId}`);
+        
+                    // Status mapping
+                    const statusMapping = {
+                        0: 'Pending',
+                        1: 'Approved',
+                        2: 'Rejected',
+                    };
+        
                     if (expenses.length > 0) {
-                        expensesContainer.innerHTML = expenses.map(expense => `
-                            <div class="expense-item">
-                                <p>Reason: ${expense.reason}</p>
-                                <p>Amount: ${expense.amount} ${expense.currency}</p>
-                                <p>Date: ${expense.date}</p>
-                                <p>Status: ${expense.status}</p>
-                                <div>
-                                    <button onclick="updateExpenseStatus(${expense.id}, 1)">Approve</button>
-                                    <button onclick="updateExpenseStatus(${expense.id}, 2)">Reject</button>
-                                </div>
-                            </div>
-                        `).join('');
+                        expensesContainer.innerHTML = `
+                            <table class="expenses-table">
+                                <thead>
+                                    <tr>
+                                        <th>Reason</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${expenses.map(expense => `
+                                        <tr data-expense-id="${expense.id}">
+                                            <td>${expense.reason}</td>
+                                            <td>${expense.amount} ${expense.currency}</td>
+                                            <td>${expense.date}</td>
+                                            <td class="expense-status">${statusMapping[expense.status] || 'Unknown'}</td>
+                                            <td>
+                                                <button class="expand-button" onclick="updateExpenseStatus(${expense.id}, 1)">Approve</button>
+                                                <button class="expand-button" onclick="updateExpenseStatus(${expense.id}, 2)">Reject</button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        `;
                     } else {
                         expensesContainer.innerHTML = '<p>No expenses awaiting approval.</p>';
                     }
@@ -94,58 +120,112 @@
                 .catch(error => console.error("Error loading expenses:", error));
         }
 
+
+
         // Update the status of an expense and refresh the page
         function updateExpenseStatus(expenseId, status) {
+            // Map status codes to text
+            const statusText = {
+                1: 'Approved',
+                2: 'Rejected',
+            };
+        
             fetch('../backend/update_expense_status.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ expense_id: expenseId, status: status })
             })
-                .then(() => {
-                    alert("Expense status updated successfully!");
-                    location.reload();
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to update expense status in the database.');
+                    }
+                    return response.json();
                 })
-                .catch(error => console.error("Error updating expense status:", error));
+                .then(() => {
+                    // Update the expense status in the HTML
+                    const expenseRow = document.querySelector(`tr[data-expense-id="${expenseId}"]`);
+                    if (expenseRow) {
+                        const statusCell = expenseRow.querySelector('.expense-status');
+                        if (statusCell) {
+                            statusCell.textContent = statusText[status]; // Update the status text
+                        }
+                    }
+                    alert(`Expense status updated to ${statusText[status]}!`);
+                })
+                .catch(error => console.error('Error updating expense status:', error));
         }
+
 
         // Mark a trip as complete by setting its status to '2' and refresh the page
         function CompleteReview(tripId) {
+            // Select all expense rows for the given trip
+            const expenseRows = document.querySelectorAll(`#expenses-${tripId} .expenses-table tbody tr`);
+            
+            // Check if any expense is still "Pending"
+            let hasPendingExpenses = false;
+            expenseRows.forEach(row => {
+                const statusCell = row.querySelector('.expense-status');
+                if (statusCell && statusCell.textContent.trim() === 'Pending') {
+                    hasPendingExpenses = true;
+                }
+            });
+        
+            // If there are pending expenses, prevent submission
+            if (hasPendingExpenses) {
+                alert('Cannot submit the trip. All expenses must be approved or rejected.');
+                return;
+            }
+        
+            // Proceed to submit the trip if no expenses are pending
             fetch('../backend/update_trip_status.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ trip_id: tripId, status: 2 })
             })
-                .then(() => {
-                    alert("Trip review completed!");
-                    location.reload();
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to update trip status in the database.');
+                    }
+                    return response.json();
                 })
-                .catch(error => console.error("Error completing trip review:", error));
+                .then(() => {
+                    alert('Trip submitted successfully!');
+                    location.reload(); // Reload the page to reflect changes
+                })
+                .catch(error => console.error('Error completing trip review:', error));
         }
+
     </script>
 </head>
 <body>
+    <!-- Header -->
+    <div class="header">
+        <div class="left-header">
+            <span class="app-name">Trippin'</span>
+            <span id="welcomeMessage" class="welcome-message">Welcome, User</span>
+        </div>
+        <div class="center-buttons">
+            <a href="home.html" class="nav-button">Home</a>
+            <button id="managerHomepageButton" class="nav-button">Manager Home</button>
+            <button onclick="window.location.href='manage_budget.html'" class="nav-button">Manage Budgets</button>
+        </div>
+        <div class="right-header">
+            <a href="index.html" class="nav-button logout-button">Logout</a>
+        </div>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <img src="assets/images/header-placeholder.jpg" alt="Header Image">
+    </div>
+    
     <div class="container">
         <h1 id="welcomeMessage">Manager Home</h1>
-
-        <section class="section">
-            <h2>Approval Requests</h2>
-            <table class="table" id="approvalRequestsTable">
-                <thead>
-                    <tr>
-                        <th>Trip ID</th>
-                        <th>Destination</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Submitted By</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+    </div>
+    <div class="content">
+        <h2>Approval Requests</h2>
+        <section class="section" id="approvalRequests">
         </section>
-
-        <button onclick="window.location.href='manage_budget.html'" class="button">Manage Budgets</button>
     </div>
 </body>
 </html>

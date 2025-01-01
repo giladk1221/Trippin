@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trippin' - Manage Budgets</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/manage_budget.css">
     <script>
         // Load destinations and populate the table
         function loadDestinations() {
@@ -24,6 +24,7 @@
                                 <td>${destination.daily_budget}</td>
                                 <td>${destination.last_update_time}</td>
                                 <td>${destination.fname} ${destination.lname}</td>
+                                <td><button class="delete-button" onclick="deleteBudget('${destination.country}')">Delete</button></td>
                             `;
                             tableBody.appendChild(row);
                         });
@@ -36,74 +37,108 @@
         window.onload = function () {
             loadDestinations();
         };
+
+        // Handle delete action
+        function deleteBudget(country) {
+            if (!confirm(`Are you sure you want to delete the budget for ${country}?`)) {
+                return;
+            }
+
+            fetch(`../backend/manage_budget.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify({ action: 'delete', country })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    alert("Budget deleted successfully.");
+                    window.location.reload();
+                } else {
+                    alert(data.message || "Failed to delete budget.");
+                }
+            })
+            .catch(error => {
+                console.error("Error during budget deletion:", error);
+                alert("An error occurred while deleting the budget.");
+            });
+        }
+
+        // Handle form submission with AJAX
+        document.getElementById('setBudgetForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('../backend/manage_budget.php', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' } // Ensure the backend detects AJAX
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    window.location.reload(); // Refresh the page to reflect changes
+                } else {
+                    alert(data.message || "Failed to save budget.");
+                }
+            })
+            .catch(error => {
+                console.error("Error during form submission:", error);
+                alert("An error occurred while saving the budget.");
+            });
+        });
     </script>
 </head>
 <body>
-    <div class="container">
-        <!-- Header Section -->
-        <header class="section">
-            <h1>Manage Budgets</h1>
-        </header>
+    <!-- Top Banner -->
+    <div class="header">
+        <div class="left-header">
+            <span class="app-name">Trippin'</span>
+        </div>
+        <div class="center-buttons">
+            <a href="home.html" class="nav-button">Home</a>
+            <a href="history.html" class="nav-button">History</a>
+        </div>
+        <div class="right-header">
+            <a href="index.html" class="nav-button logout-button">Logout</a>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+        <h2>Manage Budgets</h2>
 
         <!-- Set Budget Section -->
-        <section class="section" id="setBudgetSection">
-            <h2 class="section-title">Set and Update Budgets</h2>
-            <form id="setBudgetForm">
+        <section id="setBudgetSection">
+            <h3>Set and Update Budgets</h3>
+            <form id="setBudgetForm" action="../backend/manage_budget.php" method="POST">
                 <label for="destination">Destination:</label>
                 <input type="text" id="destination" name="destination" required>
 
                 <label for="budgetAmount">Budget Amount:</label>
                 <input type="number" id="budgetAmount" name="budgetAmount" required>
 
-                <div class="form-buttons">
-                    <button type="submit" class="button">Save</button>
-                </div>
+                <button type="submit" class="button">Save</button>
             </form>
         </section>
 
-        <script>
-            // Handle form submission with AJAX
-            document.getElementById('setBudgetForm').addEventListener('submit', function (event) {
-                event.preventDefault(); // Prevent default form submission
-
-                const formData = new FormData(this);
-
-                fetch('../backend/manage_budget.php', {
-                    method: 'POST',
-                    body: formData,
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        // Refresh the page to load updated budgets
-                        window.location.reload();
-                    } else {
-                        alert(data.message || "Failed to update budget.");
-                    }
-                })
-                .catch(error => {
-                    console.error("Error during form submission:", error);
-                    alert("An error occurred while saving the budget.");
-                });
-            });
-        </script>
-
         <!-- Current Budgets Section -->
-        <section class="section" id="currentBudgetsSection">
-            <h2 class="section-title">Current Budgets</h2>
-            <table class="table" id="budgetsTable">
+        <section id="currentBudgetsSection">
+            <h3>Current Budgets</h3>
+            <table id="budgetsTable" class="expenses-table">
                 <thead>
                     <tr>
                         <th>Country</th>
                         <th>Daily Budget</th>
                         <th>Last Updated At</th>
                         <th>Last Updated By</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
-                <tbody>
-                </tbody>
+                <tbody></tbody>
             </table>
-            <p id="noBudgetsMessage" style="display: none;">No budgets have been set yet.</p>
+            <p id="noBudgetsMessage" class="no-data-message" style="display: none;">No budgets have been set yet.</p>
         </section>
     </div>
 </body>
