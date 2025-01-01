@@ -4,14 +4,14 @@
 header('Content-Type: application/json');
 
 // Database connection (update with your credentials)
-require 'db_connection.php';
+include 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    if (isset($_GET['expense_id']) && is_numeric($_GET['expense_id'])) {
-        $expense_id = $_GET['expense_id'];
+    if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+        $expense_id = $_GET['id'];
 
         // Query to fetch expense details
-        $query = "SELECT id, reason, amount, date, currency FROM expenses WHERE id = ?";
+        $query = "SELECT id, reason, amount, date, currency FROM expense WHERE id = ?";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("i", $expense_id);
 

@@ -434,47 +434,100 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => console.error('Error deleting expense:', error));
     };
 
-    const openEditExpenseModal = (expenseId) => {
-        // Fetch expense data
-        fetch(`../backend/fetch_expense_details.php?id=${expenseId}`)
+const openEditExpenseModal = (expenseId) => {
+    // Fetch expense details
+    fetch(`../backend/fetch_expense_details.php?id=${expenseId}`)
+        .then(response => response.json())
+        .then(expenseData => {
+            if (expenseData.status === 'success' && expenseData.data) {
+                const expense = expenseData.data;
+
+                // Fetch available currencies
+                fetch('../backend/fetch_currencies.php')
+                    .then(response => response.json())
+                    .then(currencies => {
+                        const currencyDropdown = document.getElementById('editCurrency');
+                        currencyDropdown.innerHTML = ''; // Clear existing options
+
+                        // Populate the dropdown with all currencies
+                        currencies.forEach(currency => {
+                            const option = document.createElement('option');
+                            option.value = currency;
+                            option.textContent = currency;
+                            // Set the selected attribute if it matches the expense's currency
+                            if (currency === expense.currency) {
+                                option.selected = true;
+                            }
+                            currencyDropdown.appendChild(option);
+                        });
+
+                        // Populate other form fields
+                        document.getElementById('editReason').value = expense.reason;
+                        document.getElementById('editAmount').value = expense.amount;
+                        document.getElementById('editDate').value = expense.date;
+                        document.getElementById('editExpenseId').value = expense.id;
+
+                        // Show the modal
+                        const editExpenseModal = document.getElementById('editExpenseModal');
+                        editExpenseModal.classList.remove('hidden');
+                        editExpenseModal.style.display = 'flex';
+                    })
+                    .catch(error => console.error('Error fetching currencies:', error));
+            } else {
+                console.error('Invalid expense data:', expenseData);
+                alert('Failed to fetch expense details.');
+            }
+        })
+        .catch(error => console.error('Error fetching expense details:', error));
+};
+
+const editExpenseForm = document.getElementById('editExpenseForm');
+if (editExpenseForm) {
+    editExpenseForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const formData = new FormData(editExpenseForm);
+
+        fetch('../backend/edit_expense.php', {
+            method: 'POST',
+            body: formData,
+        })
             .then(response => response.json())
-            .then(expense => {
-                // Populate the edit form with the fetched expense data
-                const editExpenseModal = document.getElementById('editExpenseModal');
-                document.getElementById('editReason').value = expense.reason;
-                document.getElementById('editAmount').value = expense.amount;
-                document.getElementById('editDate').value = expense.date;
-                document.getElementById('editCurrency').value = expense.currency;
-                document.getElementById('editExpenseId').value = expense.id;
+            .then(data => {
+                // Display success or error messages to the user
+                if (data.status === 'success') {
+                    alert('Expense updated successfully!');
+                    document.getElementById('closeEditExpenseModal').click(); // Close modal
+                    loadTripExpenses(); // Refresh expenses
+                } else {
+                    alert(data.error || 'Failed to update expense.');
+                }
 
-                // Show the modal
-                editExpenseModal.classList.remove('hidden');
-                editExpenseModal.style.display = 'flex';
+                // Log detailed debug information in the console
+                console.log('Response Data:', data);
+
+                // Log specific debug details if available
+                if (data.debug) {
+                    console.log('Debug Info:', data.debug);
+                }
+                if (data.log) {
+                    console.log('Error Log Contents:', data.log);
+                }
             })
-            .catch(error => console.error('Error fetching expense details:', error));
-    };
+            .catch(error => {
+                console.error('Error updating expense:', error);
+            });
+    });
+}
 
-    const editExpenseForm = document.getElementById('editExpenseForm');
-    if (editExpenseForm) {
-        editExpenseForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            const formData = new FormData(editExpenseForm);
-
-            fetch('../backend/edit_expense.php', {
-                method: 'POST',
-                body: formData,
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        alert('Expense updated successfully!');
-                        document.getElementById('closeEditExpenseModal').click(); // Close modal
-                        loadTripExpenses(); // Refresh expenses
-                    } else {
-                        alert(data.message || 'Failed to update expense.');
-                    }
-                })
-                .catch(error => console.error('Error updating expense:', error));
+    // Add functionality for the Cancel button
+    const closeEditExpenseModalButton = document.getElementById('closeEditExpenseModal');
+    if (closeEditExpenseModalButton) {
+        closeEditExpenseModalButton.addEventListener('click', () => {
+            const editExpenseModal = document.getElementById('editExpenseModal');
+            if (editExpenseModal) {
+                editExpenseModal.classList.add('hidden'); // Add "hidden" class to hide modal
+                editExpenseModal.style.display = 'none'; // Ensure modal is not visible
+            }
         });
     }
 
