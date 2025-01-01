@@ -4,16 +4,16 @@
 header('Content-Type: application/json');
 
 // Database connection (update with your credentials)
-require 'db_connection.php';
+include 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
 
-    if (isset($input['flight_id']) && is_numeric($input['flight_id'])) {
-        $flight_id = $input['flight_id'];
+    if (isset($input['id']) && is_numeric($input['id'])) {
+        $flight_id = $input['id'];
 
         // Delete the flight (update the query based on your database structure)
-        $query = "DELETE FROM flights WHERE id = ?";
+        $query = "DELETE FROM flight WHERE id = ?";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("i", $flight_id);
 

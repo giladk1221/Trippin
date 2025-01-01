@@ -234,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <img src="assets/images/google-calendar-icon.png" alt="Add to Google Calendar">
                                 Add to Google Calendar
                             </button>
-                            <button class="delete-flight-button" data-flight-number="${flight.flight_number}">
+                            <button class="delete-flight-button" data-flight-id="${flight.id}">
                                 Delete Flight
                             </button>
                         </div>
@@ -255,9 +255,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const deleteFlightButtons = document.querySelectorAll('.delete-flight-button');
                 deleteFlightButtons.forEach(button => {
                     button.addEventListener('click', (event) => {
-                        const flightNumber = event.target.dataset.flightNumber;
-                        if (confirm(`Are you sure you want to delete flight number ${flightNumber}?`)) {
-                            deleteFlight(flightNumber);
+                        const flightId = event.target.dataset.flightId;
+                        if (confirm(`Are you sure you want to delete this flight?`)) {
+                            deleteFlight(flightId);
                         }
                     });
                 });
@@ -270,13 +270,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const deleteFlight = (flightNumber) => {
+    const deleteFlight = (flightId) => {
         fetch('../backend/delete_flight.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ flight_number: flightNumber }),
+            body: JSON.stringify({ id: flightId }),
         })
             .then(response => response.json())
             .then(data => {
