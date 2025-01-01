@@ -534,40 +534,54 @@ if (editExpenseForm) {
     if (document.getElementById('expenseContainer')) {
         loadTripExpenses();
     }
-    // Submit Trip Functionality
-    document.addEventListener('DOMContentLoaded', () => {
-        const submitTripButton = document.getElementById('submitTripButton');
 
-        if (submitTripButton) {
-            submitTripButton.addEventListener('click', async () => {
-                const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
-                if (!tripData || !tripData.id) {
-                    alert("No trip is selected to submit.");
-                    return;
-                }
 
-                try {
-                    const response = await fetch(`../backend/submit_trip.php`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ trip_id: tripData.id }),
-                    });
+// Submit Trip Functionality
 
-                    const result = await response.json();
-                    if (result.status === 'success') {
-                        alert('Trip submitted successfully!');
-                    } else {
-                        alert(result.error || 'Failed to submit trip. Please try again.');
-                    }
-                } catch (error) {
-                    console.error('Error submitting trip:', error);
-                    alert('An unexpected error occurred. Please try again.');
-                }
+const submitTripButton = document.getElementById('submitTripButton');
+if (submitTripButton) {
+    submitTripButton.addEventListener('click', async (event) => {
+        event.preventDefault(); // Ensure default behavior is prevented if necessary
+
+        // Ask for confirmation before proceeding
+        const confirmSubmit = confirm("Are you sure you want to submit this trip?");
+        if (!confirmSubmit) {
+            return; // Exit if the user cancels
+        }
+
+        // Retrieve trip data from sessionStorage
+        const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
+
+        if (!tripData || !tripData.id) {
+            alert("No trip is selected to submit.");
+            return;
+        }
+
+        try {
+            // Sending POST request
+            const response = await fetch('../backend/submit_trip.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ trip_id: tripData.id }),
             });
+
+            const result = await response.json(); // Parse JSON response
+
+            // Handle success or error response
+            if (result.status === 'success') {
+                alert('Trip submitted successfully!');
+            } else {
+                alert(result.error || 'Failed to submit trip. Please try again.');
+            }
+        } catch (error) {
+            alert('An unexpected error occurred. Please try again.');
         }
     });
+} else {
+    console.error("Submit trip button not found."); // Keep this error log to identify issues if the button is missing
+}
     
     // Load flights when the page is ready and contains the expense container
     if (document.getElementById('expenseContainer')) {

@@ -4,7 +4,7 @@
 header('Content-Type: application/json');
 
 // Database connection (update with your credentials)
-require 'db_connection.php';
+include 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $trip_id = $input['trip_id'];
 
         // Mark the trip as submitted (update the query based on your database structure)
-        $query = "UPDATE trips SET status = 'submitted' WHERE id = ?";
+        $query = "UPDATE trip SET status = 1 WHERE id = ?";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("i", $trip_id);
 
