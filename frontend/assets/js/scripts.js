@@ -541,11 +541,10 @@ if (editExpenseForm) {
 const submitTripButton = document.getElementById('submitTripButton');
 if (submitTripButton) {
     submitTripButton.addEventListener('click', async (event) => {
-        event.preventDefault(); // Ensure default behavior is prevented if necessary
+        event.preventDefault(); // Prevent default button behavior
 
         // Ask for confirmation before proceeding
-        const confirmSubmit = confirm("Are you sure you want to submit this trip?");
-        if (!confirmSubmit) {
+        if (!confirm("Are you sure you want to submit this trip?")) {
             return; // Exit if the user cancels
         }
 
@@ -558,7 +557,7 @@ if (submitTripButton) {
         }
 
         try {
-            // Sending POST request
+            // Send POST request to the backend
             const response = await fetch('../backend/submit_trip.php', {
                 method: 'POST',
                 headers: {
@@ -572,6 +571,7 @@ if (submitTripButton) {
             // Handle success or error response
             if (result.status === 'success') {
                 alert('Trip submitted successfully!');
+                window.location.href = 'home.html'; // Redirect to home.html
             } else {
                 alert(result.error || 'Failed to submit trip. Please try again.');
             }
@@ -579,8 +579,6 @@ if (submitTripButton) {
             alert('An unexpected error occurred. Please try again.');
         }
     });
-} else {
-    console.error("Submit trip button not found."); // Keep this error log to identify issues if the button is missing
 }
     
     // Load flights when the page is ready and contains the expense container
