@@ -287,6 +287,27 @@ body {
     background-color: #e85c46;
 }
 
+/* Delete Trip Button */
+.delete-trip-button {
+    display: block;
+    background-color: #FF6A52;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    text-align: center;
+    margin: 20px auto;
+    transition: background-color 0.3s ease;
+    width: fit-content;
+    /* Center the button */
+}
+
+.delete-trip-button:hover {
+    background-color: #e85c46;
+}
+
 /* Modal */
 .modal {
     position: fixed;
@@ -348,42 +369,82 @@ body {
 /* Responsive Styles */
 @media screen and (max-width: 768px) {
     .header {
-        flex-direction: column;
-        height: auto;
-        text-align: center;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        height: 40px;
     }
 
-    .trip-details {
-        padding: 0 10px;
+    .left-header {
+        display: flex;
+        align-items: center;
+        flex: 1;
+        justify-content: flex-start;
+    }
+
+    .center-buttons {
+        order: 2;
+        display: flex;
+        justify-content: center;
+        flex: 1;
+        /* Center the buttons */
+        margin: 10px 0;
+    }
+
+    .right-header {
+        order: 3;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        flex: 1;
+        padding-right: 10px;
+        /* Slightly reduce right padding */
+    }
+
+    .nav-button,
+    .logout-button {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+
+    .page-header img {
+        object-fit: cover;
+        height: auto;
     }
 
     .trip-destination {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
     }
 
     .trip-dates {
         font-size: 1rem;
     }
 
-    .content {
-        width: 90%;
+    /* Adjust cards and content for mobile */
+    .trip-card {
+        width: 100%;
+        max-width: none;
         padding: 15px;
+        margin-bottom: 20px;
     }
 
-    .section-title {
-        font-size: 1.2rem;
+    .expense-card {
+        width: 100%;
+        max-width: none;
+        padding: 15px;
+        margin-bottom: 20px;
     }
 
-    .google-calendar-button {
-        font-size: 0.8rem;
-    }
-
-    .button {
-        font-size: 0.9rem;
-        padding: 10px 15px;
+    .no-items-message {
+        font-size: 1rem;
     }
 
     .modal-content {
         width: 95%;
+    }
+
+    .expand-button {
+        width: 100%;
+        font-size: 14px;
+        padding: 10px;
     }
 }
