@@ -3,7 +3,6 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background: #fff;
     color: #333;
 }
 
@@ -39,15 +38,15 @@ form {
 }
 
 form label {
-    display: block;
     margin-bottom: 5px;
+    margin-right: 5px;
     font-weight: bold;
 }
 
 form input {
-    width: 100%;
+    width: 30%;
     padding: 8px;
-    margin-bottom: 15px;
+    margin-right: 15px;
     border: 1px solid #ccc;
     border-radius: 4px;
 }
@@ -67,16 +66,18 @@ form button:hover {
 
 /* Expenses Table */
 .expenses-table {
-    width: 100%;
+    width: auto; /* Adjusts the table width to fit content */
     border-collapse: collapse;
     margin-top: 20px;
+    margin: auto;
 }
 
-.expenses-table th,
+.expenses-table th, 
 .expenses-table td {
     border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
+    white-space: nowrap; /* Prevents text from wrapping */
 }
 
 .expenses-table th {
@@ -90,6 +91,19 @@ form button:hover {
 
 .expenses-table tr:hover {
     background-color: #f1f1f1;
+}
+
+.delete-button {
+    background-color: #FF6A52;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.delete-button:hover {
+    background-color: #e85c46;
 }
 
 /* No Data Message */

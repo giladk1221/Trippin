@@ -21,7 +21,7 @@
                             const row = document.createElement('tr');
                             row.innerHTML = `
                                 <td>${destination.country}</td>
-                                <td>${destination.daily_budget}</td>
+                                <td>${destination.daily_budget} USD</td>
                                 <td>${new Date(destination.last_update_time).toLocaleDateString()}</td>
                                 <td>${destination.fname} ${destination.lname}</td>
                                 <td><button class="delete-button" onclick="deleteBudget('${destination.country}')">Delete</button></td>
@@ -52,7 +52,6 @@
             .then(response => response.json())
             .then(data => {
                 if (data.status === "success") {
-                    alert("Budget deleted successfully.");
                     window.location.reload();
                 } else {
                     alert(data.message || "Failed to delete budget.");
@@ -129,7 +128,7 @@
             <table id="budgetsTable" class="expenses-table">
                 <thead>
                     <tr>
-                        <th>Country</th>
+                        <th>Destination</th>
                         <th>Daily Budget</th>
                         <th>Last Updated At</th>
                         <th>Last Updated By</th>

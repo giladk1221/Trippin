@@ -127,23 +127,15 @@ body {
     display: flex;
     align-items: center;
     position: relative;
-    overflow: hidden;
-    width: 100%;
 }
 
 .carousel-wrapper {
     display: flex;
+    overflow-x: auto;
     gap: 30px;
     padding: 10px;
     scroll-behavior: smooth;
-    overflow-x: scroll;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
     width: 100%;
-}
-
-.carousel-wrapper::-webkit-scrollbar {
-    display: none;
 }
 
 .trip-card {
@@ -198,11 +190,11 @@ body {
 }
 
 .carousel-nav.left {
-    left: 0px;
+    left: -20px;
 }
 
 .carousel-nav.right {
-    right: 0px;
+    right: -20px;
 }
 
 /* Add Trip Button */
@@ -321,3 +313,42 @@ body {
         width: 280px;
     }
 }
+
+/* Ensure the container groups the button and menu */
+.logout-container {
+    position: relative;
+}
+
+/* Hide the menu by default */
+.logout-container .logout-menu {
+    display: none;
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    padding: 10px;
+    top: 100%; /* Position below the button */
+    right: 5%; /* Align with the right side of the button */
+    z-index: 100;
+}
+
+/* Show the menu when hovering over the button or the menu */
+.logout-container:hover .logout-menu {
+    display: block;
+}
+
+/* Links inside the menu */
+.logout-menu a {
+    display: block;
+    padding: 8px 10px;
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+}
+
+/* Highlight menu links on hover */
+.logout-menu a:hover {
+    background-color: #f0f0f0;
+}
+
