@@ -35,7 +35,7 @@
                         tripCard.innerHTML = `
                             <h3>${trip.destination}</h3>
                             <p>Submitted by: ${trip.fname} ${trip.lname}</p>
-                            <p>${trip.start_date} - ${trip.end_date}</p>
+                            <p>${new Date(trip.start_date).toLocaleDateString()} - ${new Date(trip.end_date).toLocaleDateString()}</p>
                             <p><button class="expand-button" onclick="toggleExpenses(${trip.id})">Expand</button> 
                             <button class="expand-button" onclick="CompleteReview(${trip.id})">Submit</button></p>
                             <!-- Expenses container goes here -->
@@ -102,7 +102,7 @@
                                         <tr data-expense-id="${expense.id}">
                                             <td>${expense.reason}</td>
                                             <td>${expense.amount} ${expense.currency}</td>
-                                            <td>${expense.date}</td>
+                                            <td>${new Date(expense.date).toLocaleDateString()}</td>
                                             <td class="expense-status">${statusMapping[expense.status] || 'Unknown'}</td>
                                             <td>
                                                 <button class="expand-button" onclick="updateExpenseStatus(${expense.id}, 1)">Approve</button>

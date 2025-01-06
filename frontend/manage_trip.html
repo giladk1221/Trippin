@@ -11,7 +11,7 @@
             const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
             if (tripData) {
                 document.getElementById('tripHeader').textContent = `Manage Trip: ${tripData.destination}`;
-                document.getElementById('tripDates').textContent = `${tripData.start_date} to ${tripData.end_date}`;
+                document.getElementById('tripDates').textContent = `${new Date(tripData.start_date).toLocaleDateString()} - ${new Date(tripData.end_date).toLocaleDateString()}`;
                 console.log("Managing trip with ID:", tripData.id);
                 loadTripExpenses();
             } else {

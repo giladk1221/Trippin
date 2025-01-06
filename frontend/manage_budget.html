@@ -22,7 +22,7 @@
                             row.innerHTML = `
                                 <td>${destination.country}</td>
                                 <td>${destination.daily_budget}</td>
-                                <td>${destination.last_update_time}</td>
+                                <td>${new Date(destination.last_update_time).toLocaleDateString()}</td>
                                 <td>${destination.fname} ${destination.lname}</td>
                                 <td><button class="delete-button" onclick="deleteBudget('${destination.country}')">Delete</button></td>
                             `;

@@ -127,15 +127,23 @@ body {
     display: flex;
     align-items: center;
     position: relative;
+    overflow: hidden;
+    width: 100%;
 }
 
 .carousel-wrapper {
     display: flex;
-    overflow-x: auto;
     gap: 30px;
     padding: 10px;
     scroll-behavior: smooth;
+    overflow-x: scroll;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
     width: 100%;
+}
+
+.carousel-wrapper::-webkit-scrollbar {
+    display: none;
 }
 
 .trip-card {
@@ -190,11 +198,11 @@ body {
 }
 
 .carousel-nav.left {
-    left: -20px;
+    left: 0px;
 }
 
 .carousel-nav.right {
-    right: -20px;
+    right: 0px;
 }
 
 /* Add Trip Button */
