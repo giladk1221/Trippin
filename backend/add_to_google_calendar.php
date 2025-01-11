@@ -39,7 +39,7 @@ function createGoogleCalendarEvent($flight) {
         ],
     ]);
 
-    $calendar_id = "giladk1221@gmail.com"; 
+    $calendar_id = "20251w89@gmail.com"; 
 
     try {
         $createdEvent = $service->events->insert($calendar_id, $event);
