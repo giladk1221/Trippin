@@ -5,28 +5,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trippin' - Welcome</title>
     <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        /* Base styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            height: 100vh;
+            background-image: url('assets/images/background.png');
+            background-repeat: repeat;
+            background-size: 15%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            color: #333;
+        }
+
+        .login-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            width: 90%; /* Responsive width for mobile */
+            max-width: 360px; /* Maximum width for desktop */
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            z-index: 2; /* Above the overlay */
+        }
+
+        .app-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #FF6A52; /* Coral color */
+            margin-bottom: 20px;
+        }
+
+        .login-card form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            border: 1px solid #DBDBDB; /* Light gray */
+            border-radius: 5px;
+            padding: 10px;
+            background: #F3F3F3;
+        }
+
+        .input-group input {
+            border: none;
+            outline: none;
+            width: 100%;
+            padding: 10px;
+            background: none;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .input-group i {
+            color: #FF6A52; /* Coral for icons */
+            margin-right: 10px;
+        }
+
+        .login-card button {
+            background: #FF6A52; /* Coral button */
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-card button:hover {
+            background: #e85c46; /* Slightly darker coral */
+        }
+
+        @media (max-width: 768px) {
+            .login-card {
+                padding: 15px;
+            }
+
+            .app-name {
+                font-size: 24px;
+            }
+
+            .login-card button {
+                font-size: 14px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header class="section">
-            <h1>Welcome to Trippin'</h1>
-            <p>Your ultimate solution for managing work trips and expenses.</p>
-        </header>
-
-        <section class="section" id="loginSection">
-            <h2>Login</h2>
-            <div class="login-container">
-                <form id="loginForm" action="../backend/login.php" method="POST">
-                    <label for="username">Username:</label>
-                    <input type="text" id="username" name="username" required>
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" required>
-                    <div class="form-buttons">
-                        <button type="submit" class="button">Login</button>
-                    </div>
-                </form>
+    <div class="login-card">
+        <div class="app-name">Trippin'</div> 
+        <form id="loginForm" action="../backend/login.php" method="POST">
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="username" name="username" placeholder="Username" required>
             </div>
-        </section>
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" name="password" placeholder="Password" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
     </div>
 </body>
 </html>

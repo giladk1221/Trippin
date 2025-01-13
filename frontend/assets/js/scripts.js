@@ -38,11 +38,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (triggerId === 'addFlightButton') {
                     populateAirportsDropdown(); // Populate dropdown for flight modal
                 }
-                  else if (triggerId === 'addTripButton') {
-                populateDestinationsDropdown(); // Populate dropdown for trip modal
-            }
-                
-                
+                else if (triggerId === 'addTripButton') {
+                    populateDestinationsDropdown(); // Populate dropdown for trip modal
+                }
+
+
             });
 
             // Hide modal on close button click
@@ -136,11 +136,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const populateDestinationsDropdown = async () => {
         const destinationDropdown = document.getElementById('destination');
         destinationDropdown.innerHTML = `<option value="" disabled selected>Loading destinations...</option>`; // Loading state
-    
+
         try {
             const response = await fetch('../backend/fetch_destinations.php'); // Call PHP script
             const data = await response.json();
-    
+
             if (data && data.length > 0) {
                 destinationDropdown.innerHTML = `<option value="" disabled selected>Select a destination</option>`;
                 data.forEach(destination => {
@@ -231,8 +231,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             <p><strong>Departure:</strong> ${flight.scheduled_departure_time || 'N/A'}</p>
                             <p><strong>Arrival:</strong> ${flight.scheduled_arrival || 'N/A'}</p>
                             <button class="google-calendar-button" data-flight='${JSON.stringify(flight)}'>
-                                <img src="assets/images/google-calendar-icon.png" alt="Add to Google Calendar" style="width: 20px; height: 20px;">
+                                <img src="assets/images/google-calendar-icon.png" alt="Add to Google Calendar">
                                 Add to Google Calendar
+                            </button>
+                            <button class="delete-flight-button" data-flight-id="${flight.id}">
+                                Delete Flight
                             </button>
                         </div>
                     `;
@@ -247,6 +250,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         addFlightToGoogleCalendar(flightData);
                     });
                 });
+
+                // Add event listeners to Delete Flight buttons
+                const deleteFlightButtons = document.querySelectorAll('.delete-flight-button');
+                deleteFlightButtons.forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const flightId = event.target.dataset.flightId;
+                        if (confirm(`Are you sure you want to delete this flight?`)) {
+                            deleteFlight(flightId);
+                        }
+                    });
+                });
             } else {
                 flightContainer.innerHTML = '<p>No flights recorded for this trip.</p>';
             }
@@ -256,7 +270,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Function to handle adding a flight to Google Calendar
+    const deleteFlight = (flightId) => {
+        fetch('../backend/delete_flight.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: flightId }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Flight deleted successfully!');
+                    loadFlights(); // Refresh flights
+                } else {
+                    alert(data.message || 'Failed to delete flight.');
+                }
+            })
+            .catch(error => console.error('Error deleting flight:', error));
+    };
+
     const addFlightToGoogleCalendar = (flightData) => {
         if (confirm(`Do you want to add this flight to your Google Calendar?\n\nFlight Number: ${flightData.flight_number}\nAirline: ${flightData.airline}`)) {
             fetch('../backend/add_to_google_calendar.php', {
@@ -281,7 +314,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Load flights when the page is ready and contains the flight container
     if (document.getElementById('flightContainer')) {
         loadFlights();
     }
@@ -321,42 +353,282 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Fetch and display trip expenses
-    const loadTripExpenses = () => {
+    const loadTripExpenses = async () => {
         const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
         if (!tripData || !tripData.id) {
             console.error("Trip data or trip ID is missing.");
             return;
         }
 
-        fetch(`../backend/fetch_expenses.php?trip_id=${tripData.id}`)
-            .then(response => response.json())
-            .then(expenses => {
-                const expenseContainer = document.getElementById('expenseContainer');
-                expenseContainer.innerHTML = '';
-                if (expenses.length > 0) {
-                    expenses.forEach(expense => {
-                        const expenseCard = `
-                            <div class="expense-card">
-                                <p>Reason: ${expense.reason}</p>
-                                <p>Amount: ${expense.amount} ${expense.currency}</p>
-                                <p>Date: ${expense.date}</p>
-                            </div>
-                        `;
-                        expenseContainer.innerHTML += expenseCard;
+        const expenseContainer = document.getElementById('expenseContainer');
+        expenseContainer.innerHTML = '<p>Loading expenses...</p>';
+
+        try {
+            const response = await fetch(`../backend/fetch_expenses.php?trip_id=${tripData.id}`);
+            const expenses = await response.json();
+
+            expenseContainer.innerHTML = ''; // Clear container
+            if (expenses.length > 0) {
+                expenses.forEach(expense => {
+                    const expenseCard = `
+                        <div class="expense-card">
+                            <p><strong>Reason:</strong> ${expense.reason}</p>
+                            <p><strong>Amount:</strong> ${expense.amount} ${expense.currency}</p>
+                            <p><strong>Date:</strong> ${expense.date}</p>
+                            <button class="edit-expense-button" data-expense-id="${expense.id}">
+                                Edit Expense
+                            </button>
+                            <button class="delete-expense-button" data-expense-id="${expense.id}">
+                                Delete Expense
+                            </button>
+                        </div>
+                    `;
+                    expenseContainer.innerHTML += expenseCard;
+                });
+
+                // Add event listeners for Edit Expense buttons
+                const editExpenseButtons = document.querySelectorAll('.edit-expense-button');
+                editExpenseButtons.forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const expenseId = event.target.dataset.expenseId;
+                        openEditExpenseModal(expenseId);
                     });
-                } else {
-                    expenseContainer.innerHTML = '<p>No expenses recorded for this trip.</p>';
-                }
-            })
-            .catch(error => console.error('Error loading expenses:', error));
+                });
+
+                // Add event listeners for Delete Expense buttons
+                const deleteExpenseButtons = document.querySelectorAll('.delete-expense-button');
+                deleteExpenseButtons.forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const expenseId = event.target.dataset.expenseId;
+                        if (confirm(`Are you sure you want to delete this expense?`)) {
+                            deleteExpense(expenseId);
+                        }
+                    });
+                });
+            } else {
+                expenseContainer.innerHTML = '<p>No expenses recorded for this trip.</p>';
+            }
+        } catch (error) {
+            console.error('Error loading expenses:', error);
+            expenseContainer.innerHTML = '<p>Error loading expenses. Please try again later.</p>';
+        }
     };
 
+    const deleteExpense = (expenseId) => {
+        fetch('../backend/delete_expense.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: expenseId }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Expense deleted successfully!');
+                    loadTripExpenses(); // Refresh expenses
+                } else {
+                    alert(data.message || 'Failed to delete expense.');
+                }
+            })
+            .catch(error => console.error('Error deleting expense:', error));
+    };
+
+    const openEditExpenseModal = (expenseId) => {
+        // Fetch expense details
+        fetch(`../backend/fetch_expense_details.php?id=${expenseId}`)
+            .then(response => response.json())
+            .then(expenseData => {
+                if (expenseData.status === 'success' && expenseData.data) {
+                    const expense = expenseData.data;
+
+                    // Fetch available currencies
+                    fetch('../backend/fetch_currencies.php')
+                        .then(response => response.json())
+                        .then(currencies => {
+                            const currencyDropdown = document.getElementById('editCurrency');
+                            currencyDropdown.innerHTML = ''; // Clear existing options
+
+                            // Populate the dropdown with all currencies
+                            currencies.forEach(currency => {
+                                const option = document.createElement('option');
+                                option.value = currency;
+                                option.textContent = currency;
+                                // Set the selected attribute if it matches the expense's currency
+                                if (currency === expense.currency) {
+                                    option.selected = true;
+                                }
+                                currencyDropdown.appendChild(option);
+                            });
+
+                            // Populate other form fields
+                            document.getElementById('editReason').value = expense.reason;
+                            document.getElementById('editAmount').value = expense.amount;
+                            document.getElementById('editDate').value = expense.date;
+                            document.getElementById('editExpenseId').value = expense.id;
+
+                            // Show the modal
+                            const editExpenseModal = document.getElementById('editExpenseModal');
+                            editExpenseModal.classList.remove('hidden');
+                            editExpenseModal.style.display = 'flex';
+                        })
+                        .catch(error => console.error('Error fetching currencies:', error));
+                } else {
+                    console.error('Invalid expense data:', expenseData);
+                    alert('Failed to fetch expense details.');
+                }
+            })
+            .catch(error => console.error('Error fetching expense details:', error));
+    };
+
+    const editExpenseForm = document.getElementById('editExpenseForm');
+    if (editExpenseForm) {
+        editExpenseForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const formData = new FormData(editExpenseForm);
+
+            fetch('../backend/edit_expense.php', {
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Display success or error messages to the user
+                    if (data.status === 'success') {
+                        alert('Expense updated successfully!');
+                        document.getElementById('closeEditExpenseModal').click(); // Close modal
+                        loadTripExpenses(); // Refresh expenses
+                    } else {
+                        alert(data.error || 'Failed to update expense.');
+                    }
+
+                    // Log detailed debug information in the console
+                    console.log('Response Data:', data);
+
+                    // Log specific debug details if available
+                    if (data.debug) {
+                        console.log('Debug Info:', data.debug);
+                    }
+                    if (data.log) {
+                        console.log('Error Log Contents:', data.log);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating expense:', error);
+                });
+        });
+    }
+
+    // Add functionality for the Cancel button
+    const closeEditExpenseModalButton = document.getElementById('closeEditExpenseModal');
+    if (closeEditExpenseModalButton) {
+        closeEditExpenseModalButton.addEventListener('click', () => {
+            const editExpenseModal = document.getElementById('editExpenseModal');
+            if (editExpenseModal) {
+                editExpenseModal.classList.add('hidden'); // Add "hidden" class to hide modal
+                editExpenseModal.style.display = 'none'; // Ensure modal is not visible
+            }
+        });
+    }
+
+    if (document.getElementById('expenseContainer')) {
+        loadTripExpenses();
+    }
+
+    // Delete Trip functionality with confirmation
+    const deleteTripButton = document.getElementById('deleteTripButton');
+    if (deleteTripButton) {
+        deleteTripButton.addEventListener('click', async (event) => {
+            event.preventDefault();
+
+            // Ask for confirmation before deleting the trip
+            const confirmation = confirm("Are you sure you want to delete this trip? This action cannot be undone.");
+            if (confirmation) {
+                // Get the trip ID from sessionStorage
+                const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
+
+                if (!tripData || !tripData.id) {
+                    alert("No trip selected.");
+                    return;
+                }
+
+                try {
+                    // Send a request to the backend to delete the trip
+                    const response = await fetch('../backend/delete_trip.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ trip_id: tripData.id }),
+                    });
+
+                    const result = await response.json();
+
+                    if (result.status === 'success') {
+                        alert('Trip deleted successfully!');
+                        window.location.href = 'home.html'; // Redirect to home page
+                    } else {
+                        alert(result.message || 'Failed to delete the trip.');
+                    }
+                } catch (error) {
+                    console.error('Error deleting trip:', error);
+                    alert('An unexpected error occurred. Please try again.');
+                }
+            }
+        });
+    }
+
+
+    // Submit Trip Functionality
+
+    const submitTripButton = document.getElementById('submitTripButton');
+    if (submitTripButton) {
+        submitTripButton.addEventListener('click', async (event) => {
+            event.preventDefault(); // Prevent default button behavior
+
+            // Ask for confirmation before proceeding
+            if (!confirm("Are you sure you want to submit this trip?")) {
+                return; // Exit if the user cancels
+            }
+
+            // Retrieve trip data from sessionStorage
+            const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
+
+            if (!tripData || !tripData.id) {
+                alert("No trip is selected to submit.");
+                return;
+            }
+
+            try {
+                // Send POST request to the backend
+                const response = await fetch('../backend/submit_trip.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ trip_id: tripData.id }),
+                });
+
+                const result = await response.json(); // Parse JSON response
+
+                // Handle success or error response
+                if (result.status === 'success') {
+                    alert('Trip submitted successfully!');
+                    window.location.href = 'home.html'; // Redirect to home.html
+                } else {
+                    alert(result.error || 'Failed to submit trip. Please try again.');
+                }
+            } catch (error) {
+                alert('An unexpected error occurred. Please try again.');
+            }
+        });
+    }
 
     // Load flights when the page is ready and contains the expense container
     if (document.getElementById('expenseContainer')) {
         loadTripExpenses();
     }
 
-    
-        
-});
+
+
+}); 

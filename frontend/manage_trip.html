@@ -1,140 +1,310 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trippin' - Manage Trip</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
-            if (tripData) {
-                document.getElementById('tripHeader').textContent = `Manage Trip: ${tripData.destination}`;
-                document.getElementById('tripDates').textContent = `${tripData.start_date} to ${tripData.end_date}`;
-                console.log("Managing trip with ID:", tripData.id); 
-                loadTripExpenses();
-            } else {
-                document.getElementById('tripHeader').textContent = 'No Trip Selected';
-            }
-        });
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Trippin' - Manage Trip</title>
+      <link rel="stylesheet" href="assets/css/manage_trip.css">
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+         // Fetch session data and display user details
+         fetch('../backend/session_manager.php')
+             .then(response => response.json())
+             .then(data => {    
+                 if (!data || !data.user_id) {
+                     alert("Session expired. Please log in again.");
+                     window.location.href = 'index.html';
+                 } else {
+                     document.querySelector('.welcome-message').textContent = `Welcome, ${data.fname}`;
+                     loadDestinations();
+                     // Update the History link in the menu with the user_id
+                     const historyLink = document.querySelector('.logout-menu a[href="history.html"]');
+                     historyLink.href = `history.html?user_id=${data.user_id}`;
+         
+                     // Manager Home button functionality
+                     const managerButton = document.getElementById("managerHomepageButton");
+                     managerButton.addEventListener("click", function () {
+                         if (data.manager === 1) {
+                             window.location.href = 'manager_home.html';
+                         } else {
+                             alert("You do not have manager permissions.");
+                         }
+                     });
+                     // Manage Budget button functionality
+                     const BudgetButton = document.getElementById("ManageBudgetsButton");
+                     BudgetButton.addEventListener("click", function () {
+                         if (data.manager === 1) {
+                             window.location.href = 'manage_budget.html';
+                         } else {
+                             alert("You do not have manager permissions.");
+                         }
+                     });
+                 }
+             })
+             .catch(err => console.error("Error fetching session data:", err));
+         });
+      
+         function loadDestinations() {
+         fetch('../backend/fetch_destinations_budget.php')
+             .then(response => response.json())
+             .catch(error => console.error('Error fetching destinations:', error));
+         }
+         function getDailyBudgetForCurrentTrip(tripDestination) {
+         return fetch('../backend/fetch_destinations_budget.php')
+             .then(response => {
+                 if (!response.ok) {
+                     throw new Error('Failed to fetch destinations data.');
+                 }
+                 return response.json();
+             })
+             .then(destinations => {
+                 // Find the destination matching the current trip
+                 const destination = destinations.find(d => d.country === tripDestination);
+         
+                 // Check if the destination exists and return its daily budget
+                 if (destination) {
+                     return destination.daily_budget;
+                 } else {
+                     console.error(`No daily budget found for destination: ${tripDestination}`);
+                     return null; // Return null if not found
+                 }
+             })
+             .catch(error => {
+                 console.error('Error fetching daily budget:', error);
+                 return null; // Return null in case of an error
+             });
+         }
+         
 
-        function loadTripExpenses() {
+         
+         function calculateTripDays(startDate, endDate) {
+         // Convert dates to Date objects
+         const start = new Date(startDate);
+         const end = new Date(endDate);
+         
+         // Validate the dates
+         if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+             console.error("Invalid start or end date");
+             return 0;
+         }
+         
+         // Calculate the difference in milliseconds
+         const diffInMs = end - start;
+         
+         // Convert milliseconds to days
+         const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
+         
+         // Ensure a non-negative result
+         return diffInDays >= 0 ? diffInDays : 0;
+         }
+         
+         document.addEventListener('DOMContentLoaded', async () => {
+         const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
+         if (tripData) {
+             document.getElementById('tripHeader').textContent = `${tripData.destination} (${new Date(tripData.start_date).toLocaleDateString()} - ${new Date(tripData.end_date).toLocaleDateString()})`;
+             //document.getElementById('tripDates').textContent = `${new Date(tripData.start_date).toLocaleDateString()} - ${new Date(tripData.end_date).toLocaleDateString()}`;
+             console.log("Managing trip with ID:", tripData.id);
+            loadTripExpenses();
+             const tripDays = calculateTripDays(tripData.start_date, tripData.end_date) + 1;
+         
+             // Await the result of getDailyBudgetForCurrentTrip
+             const dailyBudgetForTrip = await getDailyBudgetForCurrentTrip(tripData.destination);
+         
+             if (dailyBudgetForTrip !== null) {
+                 const totalBudgetForTrip = tripDays * dailyBudgetForTrip;
+                 document.getElementById('TotalExpenses').textContent = `You have a total budget of ${totalBudgetForTrip} USD for this trip`;
+             } else {
+                 document.getElementById('TotalExpenses').textContent = `Daily budget not available for ${tripData.destination}`;
+             }
+         
+         } else {
+             document.getElementById('tripHeader').textContent = 'No Trip Selected';
+         }
+         });
+         
+         function loadTripExpenses() {
             const tripData = JSON.parse(sessionStorage.getItem('selectedTrip'));
             if (!tripData || !tripData.id) {
                 console.error("Trip data or trip ID is missing.");
                 return;
             }
-
+        
             fetch(`../backend/fetch_expenses.php?trip_id=${tripData.id}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Failed to fetch expenses.");
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(expenses => {
                     const expenseContainer = document.getElementById('expenseContainer');
                     expenseContainer.innerHTML = '';
+        
                     if (expenses.length > 0) {
                         expenses.forEach(expense => {
                             const expenseCard = `
                                 <div class="expense-card">
-                                    <p>Reason: ${expense.reason}</p>
-                                    <p>Amount: ${expense.amount} ${expense.currency}</p>
-                                    <p>Date: ${expense.date}</p>
+                                    <p><strong>Reason:</strong> ${expense.reason}</p>
+                                    <p><strong>Amount:</strong> ${expense.amount} ${expense.currency}</p>
+                                    <p><strong>Date:</strong> ${expense.date}</p>
+                                    <div class="expense-buttons">
+                                        <button class="edit-expense-button" data-expense-id="${expense.id}">
+                                            Edit Expense
+                                        </button>
+                                        <button class="delete-expense-button" data-expense-id="${expense.id}">
+                                            Delete Expense
+                                        </button>
+                                    </div>
                                 </div>
                             `;
                             expenseContainer.innerHTML += expenseCard;
                         });
+        
+                        // Attach event listeners to buttons
+                        document.querySelectorAll('.edit-expense-button').forEach(button => {
+                            button.addEventListener('click', event => {
+                                const expenseId = event.target.dataset.expenseId;
+                                openEditExpenseModal(expenseId);
+                            });
+                        });
+        
+                        document.querySelectorAll('.delete-expense-button').forEach(button => {
+                            button.addEventListener('click', event => {
+                                const expenseId = event.target.dataset.expenseId;
+                                if (confirm("Are you sure you want to delete this expense?")) {
+                                    deleteExpense(expenseId);
+                                }
+                            });
+                        });
                     } else {
-                        expenseContainer.innerHTML = '<p>No expenses recorded for this trip.</p>';
+                        expenseContainer.innerHTML = '<p class="expense-card">No expenses recorded for this trip.</p>';
                     }
                 })
                 .catch(error => console.error("Error loading expenses:", error.message));
-        }
-    </script>
-</head>
-<body>
-    <div class="container">
-        <header class="section">
-            <h1 id="tripHeader" class="trip-header">Manage Trip</h1>
-            <p id="tripDates" class="trip-dates"></p>
-        </header>
+            }
 
-        <!-- Flights Section -->
-        <h2 class="section-title">Flights</h2>
-        <section class="section" id="flightsSection">
+         
+      </script>
+   </head>
+   <body>
+      <!-- Header -->
+      <div class="header">
+         <div class="left-header">
+            <span class="app-name">Trippin'</span>
+            <span class="welcome-message"></span>
+         </div>
+         <div class="right-header">
+            <div class="logout-container">
+               <a class="nav-button logout-button">Menu</a>
+               <div class="logout-menu">
+                  <a href="home.html">Home</a>
+                  <a href="history.html">History</a>
+                  <a id="managerHomepageButton" >Manager Approval</a>
+                  <a id="ManageBudgetsButton" >Manage Budgets</a>
+                  <a href="index.html">Logout</a>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- Content -->
+      <div class="content">
+          <h2>Manage Trip</h2>
+         <!-- Destination Name and Trip Dates -->
+         <div class="trip-details">
+    <h1 id="tripHeader" class="trip-destination"></h1>
+    <p id="tripDates" class="trip-dates"></p>
+    <div class="submit-delete-buttons">
+        <button id="submitTripButton" class="submit-trip-button">Submit Trip</button>
+        <button id="deleteTripButton" class="delete-trip-button">Delete Trip</button>
+    </div>
+</div>
+
+         <!-- Flights Section -->
+         <h3 class="section-title">Flights</h3>
+         <section class="section content" id="flightsSection">
             <div id="flightContainer">
-                <p id="noFlightsMessage">You currently have no flights.</p>
+               <p id="noFlightsMessage" class="no-items-message">You currently have no flights.</p>
             </div>
             <button id="addFlightButton" class="button">Add Flight</button>
-        </section>
-
-        <!-- Add Flight Modal -->
-        <div id="addFlightModal" class="modal hidden">
+         </section>
+         <!-- Add Flight Modal -->
+         <div id="addFlightModal" class="modal hidden">
             <div class="modal-overlay"></div>
             <div class="modal-content">
-                <h2>Add Flight</h2>
-                <form id="addFlightForm">
-                    <label for="origin">Origin (IATA Code):</label>
-                    <select id="origin" name="iata_code" required> <!-- Updated name -->
-                        <option value="" disabled selected>Select origin...</option>
-                    </select>
-                
-                    <label for="date">Date:</label>
-                    <input type="date" id="flightDate" name="date" required>
-                
-                    <label for="flightNumber">Flight Number:</label>
-                    <input type="text" id="flightNumber" name="flight_number" required> <!-- Updated name -->
-                
-                    <div class="form-buttons">
-                        <button type="submit" class="button">Save</button>
-                        <button type="button" id="closeAddFlightModal" class="button">Cancel</button>
-                    </div>
-                </form>
+               <h2>Add Flight</h2>
+               <form id="addFlightForm">
+                  <label for="origin">Origin (IATA Code):</label>
+                  <select id="origin" name="iata_code" required>
+                     <option value="" disabled selected>Select origin...</option>
+                  </select>
+                  <label for="date">Date:</label>
+                  <input type="date" id="flightDate" name="date" required>
+                  <label for="flightNumber">Flight Number:</label>
+                  <input type="text" id="flightNumber" name="flight_number" required>
+                  <div class="form-buttons">
+                     <button type="submit" class="button">Save</button>
+                     <button type="button" id="closeAddFlightModal" class="button">Cancel</button>
+                  </div>
+               </form>
             </div>
-        </div>
-
-        <!-- Expenses Section -->
-        <h2 class="section-title">Expenses</h2>
-        <section class="section" id="expensesSection">
+         </div>
+         <!-- Expenses Section -->
+         <h3 class="section-title">Expenses</h3>
+         <h4 class="section-sub-title" id = "TotalExpenses"></h4>
+         <section class="section content" id="expensesSection">
             <div id="expenseContainer">
-                <p id="noExpensesMessage">Loading expenses...</p>
+               <p id="noExpensesMessage" class="no-items-message">You currently have no expenses.</p>
             </div>
             <button id="addExpenseButton" class="button">Add Expense</button>
-        </section>
-
-        <!-- Add Expense Modal -->
-        <div id="addExpenseModal" class="modal hidden">
+         </section>
+         <div id="editExpenseModal" class="modal hidden">
             <div class="modal-overlay"></div>
             <div class="modal-content">
-                <h2>Add Expense</h2>
-                <form id="addExpenseForm" enctype="multipart/form-data">
-                    <label for="reason">Reason:</label>
-                    <input type="text" id="reason" name="reason" required>
-
-                    <label for="amount">Amount:</label>
-                    <input type="number" id="amount" name="amount" required>
-
-                    <label for="date">Date:</label>
-                    <input type="date" id="date" name="date" required>
-
-                    <label for="currency">Currency:</label>
-                    <select id="currency" name="currency" required>
-                        <option value="" disabled selected>Select Currency</option>
-                    </select>
-
-                    <label for="receipt">Upload Receipt (required):</label>
-                    <input type="file" id="receipt" name="receipt" required>
-
-                    <div class="form-buttons">
-                        <button type="submit" class="button">Save</button>
-                        <button type="button" id="closeAddExpenseModal" class="button">Cancel</button>
-                    </div>
-                </form>
+               <h2>Edit Expense</h2>
+               <form id="editExpenseForm" enctype="multipart/form-data">
+                  <input type="hidden" id="editExpenseId" name="id">
+                  <label for="editReason">Reason:</label>
+                  <input type="text" id="editReason" name="reason" required>
+                  <label for="editAmount">Amount:</label>
+                  <input type="number" id="editAmount" name="amount" required>
+                  <label for="editDate">Date:</label>
+                  <input type="date" id="editDate" name="date" required>
+                  <label for="editCurrency">Currency:</label>
+                  <select id="editCurrency" name="currency" required>
+                     <option value="" disabled selected>Select Currency</option>
+                     <!-- Populate this dynamically with your backend -->
+                  </select>
+                  <label for="editReceipt">Upload Receipt (optional):</label>
+                  <input type="file" id="editReceipt" name="receipt">
+                  <div class="form-buttons">
+                     <button type="submit" class="button">Save</button>
+                     <button type="button" id="closeEditExpenseModal" class="button">Cancel</button>
+                  </div>
+               </form>
             </div>
-        </div>
-    </div>
-    <script src="assets/js/scripts.js"></script>
-</body>
+         </div>
+         <!-- Add Expense Modal -->
+         <div id="addExpenseModal" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+               <h2>Add Expense</h2>
+               <form id="addExpenseForm" enctype="multipart/form-data">
+                  <label for="reason">Reason:</label>
+                  <input type="text" id="reason" name="reason" required>
+                  <label for="amount">Amount:</label>
+                  <input type="number" id="amount" name="amount" required>
+                  <label for="currency">Currency:</label>
+                  <select id="currency" name="currency" required>
+                     <option value="" disabled selected>Select Currency</option>
+                  </select>
+                  <label for="date">Date:</label>
+                  <input type="date" id="date" name="date" required>
+                  <label for="receipt">Upload Receipt (required):</label>
+                  <input type="file" id="receipt" name="receipt" required>
+                  <div class="form-buttons">
+                     <button type="submit" class="button">Save</button>
+                     <button type="button" id="closeAddExpenseModal" class="button">Cancel</button>
+                  </div>
+               </form>
+            </div>
+         </div>
+      </div>
+          <script src="assets/js/scripts.js"></script>
+
+   </body>
 </html>

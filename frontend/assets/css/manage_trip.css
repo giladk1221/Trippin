@@ -1,0 +1,501 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-image: url('../images/background.png');
+    background-repeat: repeat;
+    background-size: 15%;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #FF6A52;
+    color: #fff;
+    padding: 10px 20px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 10;
+    height: 40px;
+}
+
+/* Left Header */
+.left-header {
+    display: flex;
+    align-items: flex-end;
+    gap: 15px;
+}
+
+.app-name {
+    font-size: 25px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.welcome-message {
+    font-size: 16px;
+    color: #fff;
+    position: relative;
+    top: 5px;
+}
+
+/* Center Buttons */
+.center-buttons {
+    display: flex;
+    justify-content: flex-start;
+    /* Align buttons towards the left */
+    align-items: center;
+    gap: 30px;
+    /* Space between buttons */
+    flex-grow: 1;
+    /* Allow the container to expand */
+    margin-left: calc(25% - 30px);
+    /* Adjust position to center buttons */
+}
+
+.nav-button {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    font-size: 16px;
+    transition: background 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.nav-button:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+#managerHomepageButton,#ManageBudgetsButton {
+    cursor: pointer;
+}
+
+.right-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex: 1;
+    padding-right: 20px;
+}
+
+.logout-button {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    font-size: 16px;
+    transition: background 0.3s ease;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    margin-right: 10px;
+}
+
+.logout-button:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* Page Header */
+.page-header {
+    margin-top: 70px;
+    /* Adjust for fixed header */
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.page-header img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.trip-details {
+    margin: auto;
+    text-align: center;
+}
+
+.submit-delete-buttons {
+    display: block;
+    margin-top: 5px; /* Space above the buttons */
+}
+
+.trip-destination {
+    margin-top: 50px;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #FF6A52;
+    margin-bottom: 5px;
+    
+}
+
+.trip-dates {
+    font-size: 1.2rem;
+    color: #555;
+}
+
+/* Section Titles */
+.section-title {
+    color: #FF6A52;
+}
+
+.section-sub-title{
+    text-align: left;
+    /* Align the title text to the left */
+}
+
+/* Content */
+.content {
+    margin-top: 50px;
+    padding: 20px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+.content h2 {
+    color: #FF6A52;
+}
+
+/* No Items Message */
+.no-items-message {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 20px;
+    /* Space between the message and the button */
+}
+
+/* Cards */
+.flight-card,
+.expense-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    width: 50%;
+    margin: auto;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.flight-card:hover,
+.expense-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.flight-card p,
+.expense-card p {
+    font-size: 1rem;
+    color: #555;
+    margin: 8px 0;
+}
+
+.google-calendar-button {
+    display: block;
+    align-items: center;
+    justify-content: center;
+    background-color: #4285F4;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease, box-shadow 0.2s ease;
+    margin: 20px auto 0;
+    /* Center button below content */
+}
+
+.google-calendar-button img {
+    width: 16px;
+    height: 16px;
+}
+
+.google-calendar-button:hover {
+    background-color: #357ae8;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons */
+.button {
+    display: block;
+    background-color: #FF6A52;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    text-align: center;
+    margin: 20px auto;
+    transition: background-color 0.3s ease;
+}
+
+.button:hover {
+    background-color: #e85c46;
+}
+
+.delete-flight-button {
+    display: block;
+    background-color: #FF6A52;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease, box-shadow 0.2s ease;
+    margin: 10px auto;
+}
+
+.delete-flight-button:hover {
+    background-color: #e85c46;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.edit-expense-button,
+.delete-expense-button {
+    background-color: #FF6A52;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease, box-shadow 0.2s ease;
+    margin: 5px;
+    /* Space between buttons */
+}
+
+.edit-expense-button:hover,
+.delete-expense-button:hover {
+    background-color: #e85c46;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Align buttons side by side */
+.expense-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    /* Space between buttons */
+    margin-top: 10px;
+    /* Space between buttons and expense content */
+}
+
+.submit-trip-button {
+    display: block;
+    background-color: #FF6A52;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    text-align: center;
+    margin: 20px auto;
+    transition: background-color 0.3s ease;
+    width: fit-content;
+    /* Center the button */
+}
+
+.submit-trip-button:hover {
+    background-color: #e85c46;
+}
+
+/* Delete Trip Button */
+.delete-trip-button {
+    display: block;
+    background-color: #FF6A52;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    text-align: center;
+    margin: 20px auto;
+    transition: background-color 0.3s ease;
+    width: fit-content;
+    /* Center the button */
+}
+
+.delete-trip-button:hover {
+    background-color: #e85c46;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+    color: #FF6A52;
+}
+
+.modal-content form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+.modal-content form input,
+.modal-content form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.form-buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+.form-buttons .button {
+    flex: 1;
+    margin: 0 5px;
+}
+
+/* Mobile Responsiveness */
+@media screen and (max-width: 768px) {
+    .header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        height: auto;
+    }
+
+    .left-header {
+        justify-content: flex-start;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .center-buttons {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .right-header {
+        justify-content: flex-end; /* Keep the menu button aligned to the right */
+        align-items: center; /* Maintain vertical alignment */
+        flex: 0; /* Prevent resizing */
+    }
+
+    .carousel-wrapper {
+        gap: 15px;
+    }
+
+    .trip-card {
+        width: 280px;
+    }
+}
+
+/* Ensure the container groups the button and menu */
+.logout-container {
+    position: relative;
+    display: inline-block;
+    margin-left: auto; 
+}
+
+/* Hide the menu by default */
+.logout-container .logout-menu {
+    display: none;
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    padding: 10px;
+    top: 100%; /* Position below the button */
+    right: 5%; /* Align with the right side of the button */
+    z-index: 100;
+}
+
+/* Show the menu when hovering over the button or the menu */
+.logout-container:hover .logout-menu {
+    display: block;
+}
+
+/* Links inside the menu */
+.logout-menu a {
+    display: block;
+    padding: 8px 10px;
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+}
+
+/* Highlight menu links on hover */
+.logout-menu a:hover {
+    background-color: #f0f0f0;
+}
+
+    .trip-destination {
+        font-size: 1.6rem;
+    }
+
+    .trip-dates {
+        font-size: 1rem;
+    }
+
+    /* Adjust cards and content for mobile */
+    .trip-card {
+        width: 100%;
+        max-width: none;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .no-items-message {
+        font-size: 1rem;
+    }
+
+    .modal-content {
+        width: 95%;
+    }
+
+    .expand-button {
+        width: 100%;
+        font-size: 14px;
+        padding: 10px;
+    }
+}

@@ -1,14 +1,14 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trippin' - Manage Budgets</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/manage_budget.css">
     <script>
+        // Load destinations and populate the table
         function loadDestinations() {
-            fetch('../backend/fetch_destinations.php')
+            fetch('../backend/fetch_destinations_budget.php')
                 .then(response => response.json())
                 .then(data => {
                     const tableBody = document.querySelector('#budgetsTable tbody');
@@ -21,9 +21,10 @@
                             const row = document.createElement('tr');
                             row.innerHTML = `
                                 <td>${destination.country}</td>
-                                <td>${destination.daily_budget}</td>
-                                <td>${destination.last_update_time}</td>
+                                <td>${destination.daily_budget} USD</td>
+                                <td>${new Date(destination.last_update_time).toLocaleDateString()}</td>
                                 <td>${destination.fname} ${destination.lname}</td>
+                                <td><button class="delete-button" onclick="deleteBudget('${destination.country}')">Delete</button></td>
                             `;
                             tableBody.appendChild(row);
                         });
@@ -32,45 +33,157 @@
                 .catch(error => console.error('Error fetching destinations:', error));
         }
 
-        window.onload = function() {
+        // Initialize the page on load
+        window.onload = function () {
             loadDestinations();
         };
+
+        // Handle form submission with AJAX
+        document.getElementById('setBudgetForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('../backend/manage_budget.php', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' } // Ensure the backend detects AJAX
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    window.location.reload(); // Refresh the page to reflect changes
+                } else {
+                    alert(data.message || "Failed to save budget.");
+                }
+            })
+            .catch(error => {
+                console.error("Error during form submission:", error);
+                alert("An error occurred while saving the budget.");
+            });
+        });
+
+        // Handle delete action
+        function deleteBudget(country) {
+            if (!confirm(`Are you sure you want to delete the budget for ${country}?`)) {
+                return;
+            }
+
+            fetch(`../backend/manage_budget.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify({ action: 'delete', country })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    window.location.reload();
+                } else {
+                    alert(data.message || "Failed to delete budget.");
+                }
+            })
+            .catch(error => {
+                console.error("Error during budget deletion:", error);
+                alert("An error occurred while deleting the budget.");
+            });
+        }
+
+
+                document.addEventListener("DOMContentLoaded", function () {
+            // Fetch session data and display user details
+            fetch('../backend/session_manager.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data || !data.user_id) {
+                        alert("Session expired. Please log in again.");
+                        window.location.href = 'index.html';
+                    } else {
+                        document.querySelector('.welcome-message').textContent = `Welcome, ${data.fname}`;
+                        
+                        // Update the History link in the menu with the user_id
+                        const historyLink = document.querySelector('.logout-menu a[href="history.html"]');
+                        historyLink.href = `history.html?user_id=${data.user_id}`;
+
+                        // Manager Home button functionality
+                        const managerButton = document.getElementById("managerHomepageButton");
+                        managerButton.addEventListener("click", function () {
+                            if (data.manager === 1) {
+                                window.location.href = 'manager_home.html';
+                            } else {
+                                alert("You do not have manager permissions.");
+                            }
+                        });
+                        // Manage Budget button functionality
+                        const BudgetButton = document.getElementById("ManageBudgetsButton");
+                        BudgetButton.addEventListener("click", function () {
+                            if (data.manager === 1) {
+                                window.location.href = 'manage_budget.html';
+                            } else {
+                                alert("You do not have manager permissions.");
+                            }
+                        });
+                    }
+                })
+                .catch(err => console.error("Error fetching session data:", err));
+        });
+
     </script>
 </head>
 <body>
-    <div class="container">
-        <header class="section">
-            <h1>Manage Budgets</h1>
-        </header>
+    <!-- Header -->
+    <div class="header">
+        <div class="left-header">
+            <span class="app-name">Trippin'</span>
+            <span class="welcome-message"></span>
+        </div>
+        <div class="right-header">
+            <div class="logout-container">
+                <a class="nav-button logout-button">Menu</a>
+                <div class="logout-menu">
+                    <a href="home.html">Home</a>
+                    <a href="history.html">History</a>
+                    <a id="managerHomepageButton" >Manager Approval</a>
+                    <a id="ManageBudgetsButton" >Manage Budgets</a>
+                    <a href="index.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <section class="section" id="setBudgetSection">
-            <h2 class="section-title">Set and Update Budgets</h2>
-            <form id="setBudgetForm">
+    <!-- Content -->
+    <div class="content">
+        <h2>Manage Budgets</h2>
+
+        <!-- Set Budget Section -->
+        <section id="setBudgetSection">
+            <h3>Set and Update Budgets</h3>
+            <form id="setBudgetForm" action="../backend/manage_budget.php" method="POST">
                 <label for="destination">Destination:</label>
                 <input type="text" id="destination" name="destination" required>
+
                 <label for="budgetAmount">Budget Amount:</label>
                 <input type="number" id="budgetAmount" name="budgetAmount" required>
-                <div class="form-buttons">
-                    <button type="submit" class="button">Save</button>
-                </div>
+
+                <button type="submit" class="button">Save</button>
             </form>
         </section>
 
-        <section class="section" id="currentBudgetsSection">
-            <h2 class="section-title">Current Budgets</h2>
-            <table class="table" id="budgetsTable">
+        <!-- Current Budgets Section -->
+        <section id="currentBudgetsSection">
+            <h3>Current Budgets</h3>
+            <table id="budgetsTable" class="expenses-table">
                 <thead>
                     <tr>
-                        <th>Country</th>
+                        <th>Destination</th>
                         <th>Daily Budget</th>
-                        <th>Last Update Time</th>
+                        <th>Last Updated At</th>
                         <th>Last Updated By</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                </tbody>
+                <tbody></tbody>
             </table>
-            <p id="noBudgetsMessage" style="display: none;">No budgets have been set yet.</p>
+            <p id="noBudgetsMessage" class="no-data-message" style="display: none;">No budgets have been set yet.</p>
         </section>
     </div>
 </body>

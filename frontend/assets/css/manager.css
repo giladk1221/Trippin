@@ -1,0 +1,318 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-image: url('../images/background.png');
+    background-repeat: repeat;
+    background-size: 15%;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #FF6A52;
+    color: #fff;
+    padding: 10px 20px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 10;
+    height: 40px;
+}
+
+/* Left Header */
+.left-header {
+    display: flex;
+    align-items: flex-end;
+    gap: 15px;
+}
+
+.app-name {
+    font-size: 25px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.welcome-message {
+    font-size: 16px;
+    color: #fff;
+    position: relative;
+    top: 5px;
+}
+
+/* Center Buttons */
+.center-buttons {
+    display: flex;
+    justify-content: flex-start;
+    /* Align buttons towards the left */
+    align-items: center;
+    gap: 30px;
+    /* Space between buttons */
+    flex-grow: 1;
+    /* Allow the container to expand */
+    margin-left: calc(25% - 30px);
+    /* Adjust position to center buttons */
+}
+
+.nav-button {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    font-size: 16px;
+    transition: background 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.nav-button:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+#managerHomepageButton,#ManageBudgetsButton {
+    cursor: pointer;
+}
+
+.right-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex: 1;
+    padding-right: 20px;
+}
+
+.logout-button {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    font-size: 16px;
+    transition: background 0.3s ease;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    margin-right: 10px;
+}
+
+.logout-button:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* Page Header */
+.page-header {
+    margin-top: 70px;
+    /* Adjust for fixed header */
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.page-header img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Content */
+.content {
+    margin-top: 50px;
+    padding: 20px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.content h2 {
+    color: #FF6A52;
+}
+
+/* Trip List */
+.section {
+    display: flex;
+    flex-direction: column; /* Stack cards vertically */
+    gap: 20px; /* Space between cards */
+    align-items: center; /* Center cards horizontally */
+    margin-top: 20px;
+}
+
+/* Trip Card */
+.trip-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: left;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    width: 100%; /* Ensure card takes full width */
+    max-width: 600px; /* Add max-width for responsiveness */
+}
+
+.trip-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.trip-card h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: #FF6A52;
+}
+
+.trip-card p {
+    font-size: 16px;
+    color: #555;
+    margin: 5px 0;
+}
+
+/* Expand Button */
+.expand-button {
+    background-color: #FF6A52;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.expand-button:hover {
+    background-color: #e85c46;
+}
+
+/* Table for Expenses */
+.expenses-table-wrapper {
+    overflow-x: auto;
+    margin-top: 15px;
+}
+
+.expenses-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 14px;
+    background-color: white;
+    table-layout: auto;
+}
+
+.expenses-table th,
+.expenses-table td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.expenses-table th {
+    background-color: #FF6A52;
+    color: white;
+    font-weight: bold;
+}
+
+.expenses-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.expenses-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Add Trip Button */
+#addTripButton {
+    display: inline-block;
+    margin: 20px 0;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background: #FF6A52;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#addTripButton:hover {
+    background: #e85c46;
+}
+
+/* Mobile Responsiveness */
+@media screen and (max-width: 768px) {
+    .header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        height: auto;
+    }
+
+    .left-header {
+        justify-content: flex-start;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .center-buttons {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .right-header {
+        justify-content: flex-end; /* Keep the menu button aligned to the right */
+        align-items: center; /* Maintain vertical alignment */
+        flex: 0; /* Prevent resizing */
+    }
+
+    .carousel-wrapper {
+        gap: 15px;
+    }
+
+    .trip-card {
+        width: 280px;
+    }
+}
+
+/* Ensure the container groups the button and menu */
+.logout-container {
+    position: relative;
+    display: inline-block;
+    margin-left: auto; 
+}
+
+/* Hide the menu by default */
+.logout-container .logout-menu {
+    display: none;
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    padding: 10px;
+    top: 100%; /* Position below the button */
+    right: 5%; /* Align with the right side of the button */
+    z-index: 100;
+}
+
+/* Show the menu when hovering over the button or the menu */
+.logout-container:hover .logout-menu {
+    display: block;
+}
+
+/* Links inside the menu */
+.logout-menu a {
+    display: block;
+    padding: 8px 10px;
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+}
+
+/* Highlight menu links on hover */
+.logout-menu a:hover {
+    background-color: #f0f0f0;
+}

@@ -4,25 +4,187 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trippin' - Trip History</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
-    <script src="assets/js/scripts.js" defer></script>
+    <link rel="stylesheet" href="assets/css/history.css">
 </head>
 <body>
-    <div class="container">
-        <header class="section">
-            <h1>Trip History</h1>
-            <nav>
-                <a href="home.html" class="button">Back to Home</a>
-            </nav>
-        </header>
+    <!-- Header -->
+    <div class="header">
+        <div class="left-header">
+            <span class="app-name">Trippin'</span>
+            <span class="welcome-message"></span>
+        </div>
+        <div class="right-header">
+            <div class="logout-container">
+                <a class="nav-button logout-button">Menu</a>
+                <div class="logout-menu">
+                    <a href="home.html">Home</a>
+                    <a href="history.html">History</a>
+                    <a id="managerHomepageButton" >Manager Approval</a>
+                    <a id="ManageBudgetsButton" >Manage Budgets</a>
+                    <a href="index.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <h2 class="section-title">Past Trips and Expenses</h2>
-        <section class="section" id="pastTripsSection">
-            <ul id="pastTripsList">
-                <p id="noPastTripsMessage">You currently have no past trips or expenses to display.</p>
-                <!-- Dynamic past trips and expenses will be loaded here -->
-            </ul>
+    <!-- Content -->
+    <div class="content">
+        <h2>Trip History</h2>
+
+        <!-- Section for Manager Approval Completed Trips -->
+        <section class="section">
+            <h3 class="section-title">Manager Approval Completed</h3>
+            <div id="completedTripsList" class="trip-list">
+                <p id="noCompletedTripsMessage" class="no-data-message">Loading...</p>
+            </div>
+        </section>
+
+        <!-- Section for Pending Manager Approval Trips -->
+        <section class="section">
+            <h3 class="section-title">Pending Manager Approval</h3>
+            <div id="pendingTripsList" class="trip-list">
+                <p id="noPendingTripsMessage" class="no-data-message">Loading...</p>
+            </div>
         </section>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const userId = new URLSearchParams(window.location.search).get('user_id');
+
+            if (!userId) {
+                const message = document.getElementById('noCompletedTripsMessage');
+                message.textContent = "User ID is missing. Unable to load trips.";
+                return;
+            }
+
+            fetch(`../backend/fetch_history_trips.php?user_id=${userId}`)
+                .then(response => response.json())
+                .then(async trips => {
+                    const completedTripsList = document.getElementById('completedTripsList');
+                    const pendingTripsList = document.getElementById('pendingTripsList');
+                    const noCompletedTripsMessage = document.getElementById('noCompletedTripsMessage');
+                    const noPendingTripsMessage = document.getElementById('noPendingTripsMessage');
+
+                    // Filter trips into categories
+                    const completedTrips = trips.filter(trip => trip.status === 2);
+                    const pendingTrips = trips.filter(trip => trip.status === 1);
+
+                    // Render completed trips
+                    if (completedTrips.length === 0) {
+                        noCompletedTripsMessage.textContent = "No completed trips to display.";
+                    } else {
+                        noCompletedTripsMessage.style.display = "none";
+                        const completedTripElements = await Promise.all(
+                            completedTrips.map(async trip => {
+                                const expenses = await fetchExpenses(trip.id);
+                                return `
+                                    <div class="trip-card">
+                                        <h3>${trip.destination}</h3>
+                                        <p>${new Date(trip.start_date).toLocaleDateString()} - ${new Date(trip.end_date).toLocaleDateString()}</p>
+                                        <button class="expand-button" onclick="toggleTable(${trip.id})">
+                                            Expand
+                                        </button>
+                                        <div class="expenses-table-wrapper" id="expenses-${trip.id}" style="display: none;">
+                                            ${expenses.length > 0 ? `
+                                                <table class="expenses-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Reason</th>
+                                                            <th>Amount</th>
+                                                            <th>Date</th>
+                                                            <th>Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        ${expenses.map(expense => `
+                                                            <tr>
+                                                                <td>${expense.reason}</td>
+                                                                <td>${expense.amount}&nbsp;${expense.currency}</td>
+                                                                <td>${new Date(expense.date).toLocaleDateString()}</td>
+                                                                <td>${expense.status === 1 ? 'Approved' : expense.status === 2 ? 'Rejected' : 'Pending'}</td>
+                                                            </tr>
+                                                        `).join('')}
+                                                    </tbody>
+                                                </table>
+                                            ` : '<p>No expenses recorded for this trip.</p>'}
+                                        </div>
+                                    </div>
+                                `;
+                            })
+                        );
+                        completedTripsList.innerHTML = completedTripElements.join('');
+                    }
+
+                    // Render pending trips
+                    if (pendingTrips.length === 0) {
+                        noPendingTripsMessage.textContent = "No pending trips to display.";
+                    } else {
+                        noPendingTripsMessage.style.display = "none";
+                        const pendingTripElements = pendingTrips.map(trip => `
+                            <div class="trip-card">
+                                <h3>${trip.destination}</h3>
+                                <p>${new Date(trip.start_date).toLocaleDateString()} - ${new Date(trip.end_date).toLocaleDateString()}</p>
+                            </div>
+                        `);
+                        pendingTripsList.innerHTML = pendingTripElements.join('');
+                    }
+                })
+                .catch(err => {
+                    console.error("Error loading trip history:", err);
+                    const message = document.getElementById('noCompletedTripsMessage');
+                    message.textContent = "Failed to load trip history.";
+                });
+        });
+
+        async function fetchExpenses(tripId) {
+            const response = await fetch(`../backend/fetch_expenses.php?trip_id=${tripId}`);
+            return response.ok ? await response.json() : [];
+        }
+
+        function toggleTable(tripId) {
+            const tableWrapper = document.getElementById(`expenses-${tripId}`);
+            tableWrapper.style.display = tableWrapper.style.display === 'block' ? 'none' : 'block';
+        }
+        
+        document.addEventListener("DOMContentLoaded", function () {
+            // Fetch session data and display user details
+            fetch('../backend/session_manager.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data || !data.user_id) {
+                        alert("Session expired. Please log in again.");
+                        window.location.href = 'index.html';
+                    } else {
+                        document.querySelector('.welcome-message').textContent = `Welcome, ${data.fname}`;
+                        
+                        // Update the History link in the menu with the user_id
+                        const historyLink = document.querySelector('.logout-menu a[href="history.html"]');
+                        historyLink.href = `history.html?user_id=${data.user_id}`;
+
+                        // Manager Home button functionality
+                        const managerButton = document.getElementById("managerHomepageButton");
+                        managerButton.addEventListener("click", function () {
+                            if (data.manager === 1) {
+                                window.location.href = 'manager_home.html';
+                            } else {
+                                alert("You do not have manager permissions.");
+                            }
+                        });
+                        // Manage Budget button functionality
+                        const BudgetButton = document.getElementById("ManageBudgetsButton");
+                        BudgetButton.addEventListener("click", function () {
+                            if (data.manager === 1) {
+                                window.location.href = 'manage_budget.html';
+                            } else {
+                                alert("You do not have manager permissions.");
+                            }
+                        });
+                    }
+                })
+                .catch(err => console.error("Error fetching session data:", err));
+        });
+
+    </script>
 </body>
 </html>

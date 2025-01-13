@@ -21,7 +21,9 @@ if (!$user_id) {
 }
 
 // Fetch trips for the user, including id
-$sql = "SELECT id, destination, start_date, end_date FROM trip WHERE user_id = ?";
+$sql = "SELECT id, destination, start_date, end_date 
+        FROM trip 
+        WHERE user_id = ? AND status = 0";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();

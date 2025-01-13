@@ -1,136 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trippin' - Home</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
-    <script>
-        // Validate session on page load and handle session data
-        window.onload = function () {
-            fetch('../backend/session_manager.php')
-                .then(response => {
-                    console.log("Response status:", response.status); // Debug: Log the response status
-                    if (!response.ok) {
-                        throw new Error("Session invalid. Redirecting to login...");
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log("Session data received:", data); // Debug: Log session data
-
-                    // Display welcome message with username
-                    const welcomeMessage = `Welcome, ${data.fname}`;
-                    document.getElementById('welcomeMessage').textContent = welcomeMessage;
-
-                    // Use user_id to fetch personalized trips
-                    loadUserTrips(data.user_id);
-                })
-                .catch(error => {
-                    console.error("Error during session validation:", error.message);
-                    window.location.href = 'index.html'; // Redirect to login if session is invalid
-                });
-        };
-
-        // Fetch and display user-specific trips
-        function loadUserTrips(userId) {
-            console.log("Loading trips for user_id:", userId); // Debug: Log user_id
-
-            fetch(`../backend/fetch_trips.php?user_id=${userId}`)
-                .then(response => {
-                    console.log("Trips response status:", response.status); // Debug: Log response status
-                    if (!response.ok) {
-                        throw new Error("Failed to fetch trips.");
-                    }
-                    return response.json();
-                })
-                .then(trips => {
-                    console.log("User trips:", trips); // Debug: Log fetched trips
-                    const tripsContainer = document.getElementById('tripContainer');
-                    tripsContainer.innerHTML = ''; // Clear existing content
-                    if (trips.length > 0) {
-                        tripsContainer.innerHTML = trips.map(trip => `
-                            <div class="trip-card">
-                                <h3>${trip.destination}</h3>
-                                <p>${trip.start_date} to ${trip.end_date}</p>
-                                <button onclick="viewTrip('${trip.id}', '${trip.destination}', '${trip.start_date}', '${trip.end_date}')">Manage Trip</button>
-                            </div>
-                        `).join('');
-                    } else {
-                        document.getElementById('noTripsMessage').textContent = 'No upcoming trips available.';
-                    }
-                })
-                .catch(error => console.error("Error loading trips:", error.message));
-        }
-
-        // Store trip data in sessionStorage and navigate to manage_trip.html
-        function viewTrip(id, destination, start_date, end_date) {
-            const tripData = { id, destination, start_date, end_date };
-            console.log("Storing trip data:", tripData); // Debug: Log trip data
-            sessionStorage.setItem('selectedTrip', JSON.stringify(tripData));
-            window.location.href = 'manage_trip.html';
-        }
-
-        // Function to handle manager homepage redirection
-        function goToManagerHome() {
-            fetch('../backend/session_manager.php')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.manager === 1) {
-                        window.location.href = 'manager_home.html';
-                    } else {
-                        alert("You are not a manager!");
-                    }
-                })
-                .catch(error => console.error("Error fetching manager status:", error));
-        }
-    </script>
+    <link rel="stylesheet" href="assets/css/home.css">
 </head>
+
 <body>
-    <div class="container">
-        <header class="section">
-            <h1 id="welcomeMessage">Welcome, User</h1>
-            <nav>
-                <a href="history.html" class="button">View Trip History</a>
-            </nav>
-        </header>
-
-        <h2 class="section-title">Upcoming Trips</h2>
-        <section class="section" id="upcomingTripsSection">
-            <div id="tripContainer">
-                <p id="noTripsMessage">Loading your trips...</p>
-            </div>
-            <button id="addTripButton" class="button">Add Trip</button>
-        </section>
-
-        <!-- Add Trip Modal -->
-        <div id="addTripModal" class="modal hidden">
-            <div class="modal-overlay"></div>
-            <div class="modal-content">
-                <h2>Add Trip</h2>
-                <form id="addTripForm">
-                    <label for="destination">Destination:</label>
-                    <select id="destination" name="destination" required>
-                        <option value="" disabled selected>Select a destination</option>
-                    </select>
-                    <label for="startDate">Start Date:</label>
-                    <input type="date" id="startDate" name="start_date" required>
-                    <label for="endDate">End Date:</label>
-                    <input type="date" id="endDate" name="end_date" required>
-                    <div class="form-buttons">
-                        <button type="submit" class="button">Save</button>
-                        <button type="button" id="closeAddTripModal" class="button">Cancel</button>
-                    </div>
-                </form>
+    <!-- Header -->
+    <div class="header">
+        <div class="left-header">
+            <span class="app-name">Trippin'</span>
+            <span class="welcome-message">Welcome, User</span>
+        </div>
+        <div class="right-header">
+            <div class="logout-container">
+                <a class="nav-button logout-button">Menu</a>
+                <div class="logout-menu">
+                    <a href="home.html">Home</a>
+                    <a href="history.html">History</a>
+                    <a id="managerHomepageButton" >Manager Approval</a>
+                    <a id="ManageBudgetsButton" >Manage Budgets</a>
+                    <a href="index.html">Logout</a>
+                </div>
             </div>
         </div>
     </div>
-    
-    <!-- Go to Manager Homepage Button -->
-    <button id="managerHomepageButton" class="button" onclick="goToManagerHome()">
-        Go to Manager Homepage
-    </button>
 
+    <!-- Content -->
+    <div class="content">
+        <h2>Upcoming Trips</h2>
+        <div class="carousel-container">
+            <button class="carousel-nav left" onclick="scrollCarousel('left')">&lt;</button>
+            <div class="carousel-wrapper">
+                <p>Loading trips...</p>
+            </div>
+            <button class="carousel-nav right" onclick="scrollCarousel('right')">&gt;</button>
+        </div>
+        <button id="addTripButton" class="button">Add Trip</button>
+    </div>
+
+    <!-- Add Trip Modal -->
+    <div id="addTripModal" class="modal">
+        <div class="modal-content">
+            <h2>Add Trip</h2>
+            <form id="addTripForm">
+                <label for="destination">Destination:</label>
+                <select id="destination" name="destination" required>
+                    <option value="" disabled selected>Select a destination</option>
+                </select>
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate" name="start_date" required>
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate" name="end_date" required>
+                <div class="form-buttons">
+                    <button type="submit" class="button">Save</button>
+                    <button type="button" id="closeAddTripModal" class="button">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script src="assets/js/scripts.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Fetch session data and display user details
+            fetch('../backend/session_manager.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data || !data.user_id) {
+                        alert("Session expired. Please log in again.");
+                        window.location.href = 'index.html';
+                    } else {
+                        document.querySelector('.welcome-message').textContent = `Welcome, ${data.fname}`;
+                        
+                        // Update the History link in the menu with the user_id
+                        const historyLink = document.querySelector('.logout-menu a[href="history.html"]');
+                        historyLink.href = `history.html?user_id=${data.user_id}`;
+                        loadUserTrips(data.user_id);
+                        loadDestinations();
+
+                        // Manager Home button functionality
+                        const managerButton = document.getElementById("managerHomepageButton");
+                        managerButton.addEventListener("click", function () {
+                            if (data.manager === 1) {
+                                window.location.href = 'manager_home.html';
+                            } else {
+                                alert("You do not have manager permissions.");
+                            }
+                        });
+                        // Manage Budget button functionality
+                        const BudgetButton = document.getElementById("ManageBudgetsButton");
+                        BudgetButton.addEventListener("click", function () {
+                            if (data.manager === 1) {
+                                window.location.href = 'manage_budget.html';
+                            } else {
+                                alert("You do not have manager permissions.");
+                            }
+                        });
+                    }
+                })
+                .catch(err => console.error("Error fetching session data:", err));
+        });
+
+        function loadDestinations() {
+            fetch('../backend/fetch_destinations.php')
+                .then(response => response.json())
+                .then(data => {
+                    const dropdown = document.getElementById('destination');
+                    dropdown.innerHTML = '<option value="" disabled selected>Select a destination</option>';
+                    data.forEach(dest => {
+                        const option = document.createElement('option');
+                        option.value = dest.id;
+                        option.textContent = dest.name;
+                        dropdown.appendChild(option);
+                    });
+                })
+                .catch(err => console.error("Error loading destinations:", err));
+        }
+
+        function loadUserTrips(userId) {
+            fetch(`../backend/fetch_trips.php?user_id=${userId}`)
+                .then(response => response.json())
+                .then(trips => {
+                    const wrapper = document.querySelector('.carousel-wrapper');
+                    trips.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+                    wrapper.innerHTML = trips.length
+                        ? trips.map(trip => `
+                            <div class="trip-card">
+                                <h3>${trip.destination}</h3>
+                                <p>${new Date(trip.start_date).toLocaleDateString()} - ${new Date(trip.end_date).toLocaleDateString()}</p>
+                                <button onclick="manageTrip('${trip.id}', '${trip.destination}', '${trip.start_date}', '${trip.end_date}')">Manage</button>
+                            </div>
+                        `).join('')
+                        : '<p>No upcoming trips.</p>';
+                })
+                .catch(err => console.error("Error fetching trips:", err));
+        }
+
+        function scrollCarousel(direction) {
+            const wrapper = document.querySelector('.carousel-wrapper');
+            wrapper.scrollBy({ left: direction === 'left' ? -400 : 400, behavior: 'smooth' });
+        }
+
+        function manageTrip(tripId, tripDestination, tripStartDate, tripEndDate) {
+            const tripData = {
+                id: tripId,
+                destination: tripDestination,
+                start_date: tripStartDate,
+                end_date: tripEndDate,
+            };
+            sessionStorage.setItem('selectedTrip', JSON.stringify(tripData));
+            window.location.href = 'manage_trip.html';
+        }
+    </script>
 </body>
+
 </html>

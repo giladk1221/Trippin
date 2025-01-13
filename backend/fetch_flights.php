@@ -21,7 +21,7 @@ if (!$trip_id || !is_numeric($trip_id)) {
 }
 
 // Fetch flights for the given trip_id
-$sql = "SELECT flight_number, airline, flight_date, origin_airport, origin_terminal, gate, 
+$sql = "SELECT id, flight_number, airline, flight_date, origin_airport, origin_terminal, gate, 
         destination_airport, destination_terminal, scheduled_departure_time, scheduled_arrival 
         FROM flight WHERE trip_id = ?";
 $stmt = $conn->prepare($sql);
