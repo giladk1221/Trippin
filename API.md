@@ -17,11 +17,11 @@
 
 ### **1. Fetch All Expenses for a User**
 
-GET http://yourdomain.com/api/expenses.php?username=johndoe&api_key=your-api-key
+GET http://benzd.mtacloud.co.il/Trippin/backend/get_expenses.php?username=amitm&api_key=your-api-key
 
 ### **2. Fetch All Expenses for a User by Month and Year
 
-GET http://yourdomain.com/api/expenses.php?username=johndoe&month=12&year=2024&api_key=your-api-key
+GET http://benzd.mtacloud.co.il/Trippin/backend/get_expenses.php?username=amitm&month=01&year=2025&api_key=your-api-key
 
 
 
