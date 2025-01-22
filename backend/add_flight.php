@@ -15,7 +15,7 @@ if (!isset($_SESSION['user_id'])) {
 // Fetch flight data from the API
 function fetch_flight_data($iata_code, $flight_number, $date) {
     $api_url = "https://api.aviationstack.com/v1/flightsFuture";
-    $access_key = "6a37eaee7512abd3d4be0f17821a5a47";
+    $access_key = "4819df886394506c1e23adf88be74a27";
 
     // Construct the API request URL
     $params = [
